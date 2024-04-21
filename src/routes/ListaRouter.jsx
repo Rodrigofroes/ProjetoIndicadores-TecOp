@@ -5,6 +5,7 @@ import Highlighter from 'react-highlight-words';
 import { FaPlus } from "react-icons/fa6";
 import InputCustom from '../components/InputCustom';
 import SelectCustom from '../components/SelectCustom';
+import SelectCustomMovi from '../components/SelectCustomMovi';
 
 const ListaRouter = () => {
   const [searchText, setSearchText] = useState('');
@@ -221,7 +222,7 @@ const AddItemForm = ({ onAdd, onCancel }) => {
         label="Movimentação"
         rules={[{ required: true, message: 'Por favor, insira a movimentação!' }]}
       >
-        <Input />
+        <SelectCustomMovi/>
       </Form.Item>
       <Form.Item
         name="tabela_quantidade"
