@@ -9,7 +9,7 @@ const DashLine = ({dados}) => {
   const quantidades = dados.map((data) => data.tabela_quantidade);
 
   return (
-    <div className="border-2 p-4 rounded-md bg-slate-300 ">
+    <div className="border-2 p-6 rounded-md bg-slate-300 w-full flex items-center justify-center">
       <Line
         inputMode="search"
         data={{

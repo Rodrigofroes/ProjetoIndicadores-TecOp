@@ -47,7 +47,7 @@ const DashBar = ({dados}) => {
   }));
 
   return (
-    <div className='border-2 p-4 rounded-md bg-slate-300 '>
+    <div className='border-2 p-4 rounded-md bg-slate-300 w-96 h-80'>
       <Bar
         data={{
           labels: labelsFiltrados,

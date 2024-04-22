@@ -1,0 +1,25 @@
+<div className='flex flex-col gap-4'>
+          <div className='flex gap-4 items-center'>
+            <div>
+              <label htmlFor="dateInicio">Data Início:</label>
+              <Input type='date' id='dateInicio' value={dataInicio} onChange={(e) => setDataInicio(e.target.value)} />
+            </div>
+            <div>
+              <label htmlFor="dateFinal">Data Final:</label>
+              <Input type='date' id='dateFinal' value={dataFinal} onChange={(e) => setDataFinal(e.target.value)} />
+            </div>
+            <div className='flex gap-2'>
+              <button className='bg-blue-500 px-4 py-2 rounded-lg text-white font-medium' onClick={() => filtroApi()}>Filtrar</button>
+              <button className='bg-blue-500 px-4 py-2 rounded-lg text-white font-medium'>Limpar</button>
+            </div>
+          </div>
+          <div className='flex flex-col gap-4'>
+            <div className='flex gap-4 items-center justify-center'>
+              <DashDoughnut dados={dados} />
+              <DashBar dados={dados} />
+            </div>
+            <div className='flex justify-center'>
+              <DashLine dados={dados} />
+            </div>
+          </div>
+        </div>

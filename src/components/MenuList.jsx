@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom'
 
 const MenuList = () => {
   return (
-    <Menu theme='dark' mode='inline' className='h-86 flex flex-col text-base relative mt-8'>
+    <Menu theme='dark' mode='inline' className='h-screen flex flex-col text-base relative mt-8'>
         <Menu.SubMenu title="Inventário" icon={<FaPaste/>}>
             <Menu.Item key={"house"} icon={<FaChartSimple/>}>
               <Link to="/dashboard">Dashboard</Link>
