@@ -3,6 +3,8 @@ import { FaList } from "react-icons/fa6";
 import { FaChartSimple } from "react-icons/fa6";
 import { FaPaste } from "react-icons/fa6";
 import { Link } from 'react-router-dom'
+import { FaCartShopping } from "react-icons/fa6";
+import { FaFileSignature } from "react-icons/fa6";
 
 const MenuList = () => {
   return (
@@ -14,6 +16,11 @@ const MenuList = () => {
             <Menu.Item key={"list"} icon={<FaList/>}>
               <Link to="/lista">Listagem</Link>
             </Menu.Item>
+        </Menu.SubMenu>
+        <Menu.SubMenu title="Separação" icon={<FaCartShopping/>}>
+          <Menu.Item key={"Ficha"} icon={<FaFileSignature/>}>
+            <Link>Relatório</Link>
+          </Menu.Item>
         </Menu.SubMenu>
     </Menu>
    
