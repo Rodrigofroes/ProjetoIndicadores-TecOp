@@ -16,11 +16,12 @@ const ListaRouter = () => {
   const searchInput = useRef(null);
 
   const fetchDataFromAPI = () => {
-    fetch('http://localhost:8000/consultar/listagem',{
+    fetch('http://localhost:8000/consultar/listagem', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-    }})
+      }
+    })
       .then(response => response.json())
       .then(data => setDataSource(data))
       .catch(error => console.error('Erro ao buscar dados da API:', error));
@@ -177,9 +178,11 @@ const ListaRouter = () => {
   ];
 
   return (
-    <div>
+    <div className='flex items-center justify-center flex-col h-screen'>
       <Button onClick={handleAddItem} type="primary" icon={<FaPlus />}>Adicionar Item</Button>
-      <Table columns={columns} dataSource={dataSource} />
+      <div style={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto', width: '100%' }}>
+        <Table columns={columns} dataSource={dataSource} />
+      </div>
       {/* Modal para adicionar novo item */}
       <Modal
         title="Adicionar Atividade"
@@ -215,14 +218,14 @@ const AddItemForm = ({ onAdd, onCancel }) => {
         label="Atividade"
         rules={[{ required: true, message: 'Por favor, insira a atividade!' }]}
       >
-        <SelectCustom/>
+        <SelectCustom />
       </Form.Item>
       <Form.Item
         name="mov_nome"
         label="Movimentação"
         rules={[{ required: true, message: 'Por favor, insira a movimentação!' }]}
       >
-        <SelectCustomMovi/>
+        <SelectCustomMovi />
       </Form.Item>
       <Form.Item
         name="tabela_quantidade"
