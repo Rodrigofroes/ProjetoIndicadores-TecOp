@@ -43,8 +43,7 @@ const DashboardRouter = () => {
   }
 
   return (
-    <div>
-      <div>
+      <div className='flex flex-col items-center justify-center'>
         <div className='text-2xl font-bold text-center mb-4'>
           <h2>Dashboard</h2>
         </div>
@@ -63,21 +62,22 @@ const DashboardRouter = () => {
           </div>
         </div>
         <div>
-          <div>
-            <div className='flex gap-2 flex-col'>
-              <div className='flex items-center justify-center'>
+            <div className='flex flex-col gap-2'>
+              <div className='w-96 bg-zinc-200 p-4 '>
                 <DashLine dados={dados.length > 0 ? dados : data} />
               </div>
-              <div className='flex items-center gap-2 justify-center'>
-                <DashDoughnut dados={dados.length > 0 ? dados : data} />
-                <DashBar dados={dados.length > 0 ? dados : data} />
+              <div className=' flex items-center gap-2 '>
+                <div className='bg-zinc-200 p-4 w-96 h-80 flex items-center gap-4'>
+                  <DashDoughnut dados={dados.length > 0 ? dados : data} />
+                </div>
+                <div className='bg-zinc-200 p-4 w-96 h-80 flex items-center gap-4'>
+                  <DashBar dados={dados.length > 0 ? dados : data} />
+                </div>
               </div>
             </div>
-          </div>
         </div>
       </div>
 
-    </div>
   );
 }
 

@@ -79,7 +79,7 @@ const ListaRouter = () => {
     <div>
       <Button
         type="primary"
-        className="flex items-center gap-2 font-medium"
+        className="flex items-center gap-2 font-medium mb-2"
         onClick={() => onAdd()}
       >
         <FaPlus />

@@ -14,7 +14,7 @@ const DashDoughnut = ({dados}) => {
       }],
     };
   return (
-    <div className='border-2 p-4 rounded-md bg-slate-300 w-80 h-72'>
+    <div className=''>
         <Doughnut key={Math.random()}
           data={dadosDistribuicaoAtividades}
           options={{
