@@ -9,7 +9,7 @@ import { FaFileSignature } from "react-icons/fa6";
 const MenuList = () => {
   return (
     <Menu theme='dark' mode='inline' className='h-screen flex flex-col text-base relative mt-8'>
-        <Menu.SubMenu title="Inventário" icon={<FaPaste/>}>
+        <Menu.SubMenu title="Inventário" icon={<FaPaste/>} key={"inventario"}>
             <Menu.Item key={"house"} icon={<FaChartSimple/>}>
               <Link to="/dashboard">Dashboard</Link>
             </Menu.Item>
@@ -17,7 +17,7 @@ const MenuList = () => {
               <Link to="/lista">Listagem</Link>
             </Menu.Item>
         </Menu.SubMenu>
-        <Menu.SubMenu title="Separação" icon={<FaCartShopping/>}>
+        <Menu.SubMenu title="Separação" icon={<FaCartShopping/>} key={"separacao"}>
           <Menu.Item key={"Ficha"} icon={<FaFileSignature/>}>
             <Link>Relatório</Link>
           </Menu.Item>

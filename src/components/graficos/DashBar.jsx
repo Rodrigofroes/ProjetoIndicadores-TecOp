@@ -48,7 +48,7 @@ const DashBar = ({dados}) => {
 
   return (
     <div className='border-2 p-4 rounded-md bg-slate-300 w-96 h-72'>
-      <Bar
+      <Bar key={Math.random()}
         data={{
           labels: labelsFiltrados,
           datasets: datasetsAtividadesPorDiaFiltrados,

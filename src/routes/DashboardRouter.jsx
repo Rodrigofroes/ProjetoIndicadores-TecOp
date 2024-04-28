@@ -34,7 +34,12 @@ const DashboardRouter = () => {
   }
 
   const limparApi = () => {
-    Setdata(data);
+    Axios.get('http://localhost:8000/consultar/grafico')
+      .then((response) => {
+        setDados(response.data)
+      }).catch((error) => {
+        console.error('Erro ao buscar dados da API:', error)
+      })
   }
 
   return (

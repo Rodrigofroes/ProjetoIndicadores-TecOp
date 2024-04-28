@@ -10,7 +10,7 @@ const DashLine = ({dados}) => {
 
   return (
     <div className="border-2 p-6 rounded-md bg-slate-300 w-full flex items-center justify-center h-60">
-      <Line
+      <Line key={Math.random()}
         inputMode="search"
         data={{
           labels: labels,

@@ -1,248 +1,185 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { SearchOutlined } from '@ant-design/icons';
-import { Button, Input, Space, Table, Modal, Form, notification } from 'antd';
-import Highlighter from 'react-highlight-words';
+import React, { useRef, useState, useEffect } from "react";
+import TableList from "../components/TableList";
+import Axios from "axios";
 import { FaPlus } from "react-icons/fa6";
-import InputCustom from '../components/InputCustom';
-import SelectCustom from '../components/SelectCustom';
-import SelectCustomMovi from '../components/SelectCustomMovi';
+import { Button, Input, Modal } from "antd";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const handleSchameCustom = z.object({
+  data: z.string().min(1, { message: "*Campo obrigatório" }),
+  atividade: z.string().min(1, { message: "*Campo obrigatório" }),
+  movimentacao: z.string().min(1, { message: "*Campo obrigatório" }),
+  quantidade: z.string().min(1, { message: "*Campo obrigatório" }),
+});
 
 const ListaRouter = () => {
-  const [searchText, setSearchText] = useState('');
-  const [searchedColumn, setSearchedColumn] = useState('');
   const [dataSource, setDataSource] = useState([]);
   const [atividade, setAtividade] = useState([]);
-  const [modalVisible, setModalVisible] = useState(false);
-  const searchInput = useRef(null);
-
-  const fetchDataFromAPI = () => {
-    fetch('http://localhost:8000/consultar/listagem', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    })
-      .then(response => response.json())
-      .then(data => setDataSource(data))
-      .catch(error => console.error('Erro ao buscar dados da API:', error));
-  };
+  const [movimentacao, setMovimentacao] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    fetchDataFromAPI();
+    Axios.get("http://localhost:8000/consultar/listagem")
+      .then((response) => {
+        setDataSource(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+    Axios.get("http://localhost:8000/consultar/atividade")
+      .then((response) => {
+        setAtividade(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+    Axios.get("http://localhost:8000/consultar/movimentacao")
+      .then((response) => {
+        setMovimentacao(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }, []);
 
-  const handleAddItem = () => {
-    setModalVisible(true);
-  };
-
-  const handleModalCancel = () => {
-    setModalVisible(false);
-  };
-
-  const handleAddNewItem = (values) => {
-    console.log('Novo item:', values);
-    notification.success({
-      message: 'Novo item adicionado com sucesso!',
-    });
-    setModalVisible(false);
-    fetchDataFromAPI();
-  };
-
-  const getColumnSearchProps = (dataIndex) => ({
-    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
-      <div
-        style={{
-          padding: 8,
-        }}
-        onKeyDown={(e) => e.stopPropagation()}
-      >
-        <Input
-          ref={searchInput}
-          placeholder={`Search ${dataIndex}`}
-          value={selectedKeys[0]}
-          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-          style={{
-            marginBottom: 8,
-            display: 'block',
-          }}
-        />
-        <Space>
-          <Button
-            type="primary"
-            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-            icon={<SearchOutlined />}
-            size="small"
-            style={{
-              width: 90,
-            }}
-          >
-            Search
-          </Button>
-          <Button
-            onClick={() => clearFilters && handleReset(clearFilters)}
-            size="small"
-            style={{
-              width: 90,
-            }}
-          >
-            Reset
-          </Button>
-          <Button
-            type="link"
-            size="small"
-            onClick={() => {
-              confirm({
-                closeDropdown: false,
-              });
-              setSearchText(selectedKeys[0]);
-              setSearchedColumn(dataIndex);
-            }}
-          >
-            Filter
-          </Button>
-          <Button
-            type="link"
-            size="small"
-            onClick={() => {
-              close();
-            }}
-          >
-            close
-          </Button>
-        </Space>
-      </div>
-    ),
-    filterIcon: (filtered) => (
-      <SearchOutlined
-        style={{
-          color: filtered ? '#1677ff' : undefined,
-        }}
-      />
-    ),
-    onFilter: (value, record) =>
-      record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
-    onFilterDropdownOpenChange: (visible) => {
-      if (visible) {
-        setTimeout(() => searchInput.current?.select(), 100);
-      }
-    },
-    render: (text) =>
-      searchedColumn === dataIndex ? (
-        <Highlighter
-          highlightStyle={{
-            backgroundColor: '#ffc069',
-            padding: 0,
-          }}
-          searchWords={[searchText]}
-          autoEscape
-          textToHighlight={text ? text.toString() : ''}
-        />
-      ) : (
-        text
-      ),
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(handleSchameCustom),
   });
 
-  const columns = [
-    {
-      title: 'Data',
-      dataIndex: 'tabela_data',
-      key: 'tabela_data',
-      width: '30%',
-      ...getColumnSearchProps('tabela_data'),
-    },
-    {
-      title: 'Atividade',
-      dataIndex: 'ati_nome',
-      key: 'ati_nome',
-      width: '20%',
-      ...getColumnSearchProps('ati_nome'),
-      sorter: (a, b) => a.ati_nome.length - b.ati_nome.length,
-      sortDirections: ['descend', 'ascend'],
-    },
-    {
-      title: 'Movimentação',
-      dataIndex: 'mov_nome',
-      key: 'mov_nome',
-      ...getColumnSearchProps('mov_nome'),
-      sorter: (a, b) => a.mov_nome.length - b.mov_nome.length,
-      sortDirections: ['descend', 'ascend'],
-    },
-    {
-      title: 'Quantidade',
-      dataIndex: 'tabela_quantidade',
-      key: 'tabela_quantidade',
-      width: '20%',
-      ...getColumnSearchProps('tabela_quantidade'),
-    },
-  ];
+  const handleSubmitCustom = (data) => {
+    Axios.post("http://localhost:8000/cadastro/register", {
+      data: data.data,
+      quantidade: data.quantidade,
+      atividade: data.atividade,
+      movimentacao: data.movimentacao,
+    })
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
 
-  return (
-    <div className='flex items-center justify-center flex-col h-screen'>
-      <Button onClick={handleAddItem} type="primary" icon={<FaPlus />}>Adicionar Item</Button>
-      <div style={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto', width: '100%' }}>
-        <Table columns={columns} dataSource={dataSource} />
-      </div>
-      {/* Modal para adicionar novo item */}
-      <Modal
-        title="Adicionar Atividade"
-        visible={modalVisible}
-        onCancel={handleModalCancel}
-        footer={null}
-      >
-        <AddItemForm onAdd={handleAddNewItem} onCancel={handleModalCancel} />
-      </Modal>
-    </div>
-  );
-};
+    window.location.reload();
+  };
 
-const AddItemForm = ({ onAdd, onCancel }) => {
-  const [form] = Form.useForm();
-
-  const onFinish = (values) => {
-    onAdd(values);
-    form.resetFields();
+  const onAdd = () => {
+    setIsModalOpen(true);
   };
 
   return (
-    <Form form={form} layout="vertical" onFinish={onFinish}>
-      <Form.Item
-        name="tabela_data"
-        label="Data"
-        rules={[{ required: true, message: 'Por favor, insira a data!' }]}
+    <div>
+      <Button
+        type="primary"
+        className="flex items-center gap-2 font-medium"
+        onClick={() => onAdd()}
       >
-        <InputCustom tipo="date" placeholder="Data" />
-      </Form.Item>
-      <Form.Item
-        name="ati_nome"
-        label="Atividade"
-        rules={[{ required: true, message: 'Por favor, insira a atividade!' }]}
+        <FaPlus />
+        Cadastrar
+      </Button>
+
+      <TableList
+        dataSource={dataSource}
+        atividade={atividade}
+        movimentacao={movimentacao}
+      />
+      <Modal
+        title="Cadastrar Atividade"
+        okText="Salvar"
+        visible={isModalOpen}
+        onOk={() => {
+          setIsModalOpen(false);
+        }}
+        onCancel={() => {
+          setIsModalOpen(false);
+        }}
+        footer={null}
       >
-        <SelectCustom />
-      </Form.Item>
-      <Form.Item
-        name="mov_nome"
-        label="Movimentação"
-        rules={[{ required: true, message: 'Por favor, insira a movimentação!' }]}
-      >
-        <SelectCustomMovi />
-      </Form.Item>
-      <Form.Item
-        name="tabela_quantidade"
-        label="Quantidade"
-        rules={[{ required: true, message: 'Por favor, insira a quantidade!' }]}
-      >
-        <Input />
-      </Form.Item>
-      <Form.Item>
-        <Button type="primary" htmlType="submit">
-          Adicionar
-        </Button>
-        <Button onClick={onCancel} style={{ marginLeft: 8 }}>
-          Cancelar
-        </Button>
-      </Form.Item>
-    </Form>
+        <form onSubmit={handleSubmit(handleSubmitCustom)}>
+          <div className="flex flex-col w-96 gap-4 p-4">
+            <label htmlFor="data">Data:</label>
+            <input
+              className="border border-gray-300 rounded-md p-2"
+              variant="outline"
+              id="data"
+              placeholder="Data"
+              type="date"
+              {...register("data")}
+            />
+            {errors.data && (
+              <span className="text-xs text-red-500">
+                {errors.data.message}
+              </span>
+            )}
+
+            <div className="flex gap-5">
+              <div className="w-80 flex flex-col">
+                <label htmlFor="inputAtividade">Atividade:</label>
+                <select variant="outline" {...register("atividade")}
+                  className="border border-gray-300 rounded-md p-2"
+                >
+                  {atividade.map((items) => (
+                    <option key={items.ati_nome} value={items.ati_id}>
+                      {items.ati_nome}
+                    </option>
+                  ))}
+                </select>
+                {errors.atividade && (
+                  <span className="text-xs text-red-500">
+                    {errors.atividade.message}
+                  </span>
+                )}
+              </div>
+
+              <div className="w-80 flex flex-col">
+                <label htmlFor="inputMovimentacao">Movimentação:</label>
+                <select variant="outline" {...register("movimentacao")} 
+                  className="border border-gray-300 rounded-md p-2"
+                >
+                  {movimentacao.map((items) => (
+                    <option key={items.mov_nome} value={items.mov_id}>
+                      {items.mov_nome}
+                    </option>
+                  ))}
+                </select>
+                {errors.movimentacao && (
+                  <span className="text-xs text-red-500">
+                    {errors.movimentacao.message}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <label htmlFor="quantidade">Quantidade:</label>
+            <input
+              className="border border-gray-300 rounded-md p-2"
+              id="quantidade"
+              placeholder="Quantidade"
+              {...register("quantidade")}
+            />
+            {errors.quantidade && (
+              <span className="text-xs text-red-500">
+                {errors.quantidade.message}
+              </span>
+            )}
+            <button 
+              type="submit"
+              className="bg-blue-500 text-white p-2 rounded-md"
+            >
+              Cadastrar
+            </button>
+          </div>
+        </form>
+      </Modal>
+    </div>
   );
 };
 
