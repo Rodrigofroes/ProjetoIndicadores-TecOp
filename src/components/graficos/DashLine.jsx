@@ -10,6 +10,7 @@ const DashLine = ({dados}) => {
 
   return (
     <div className="">
+      <h1 className="font-medium font-1xl mb-2">Atividade ao longo do tempo</h1>
       <Line key={Math.random()}
         inputMode="search"
         data={{

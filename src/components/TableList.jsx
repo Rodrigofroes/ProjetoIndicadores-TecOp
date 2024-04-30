@@ -58,7 +58,7 @@ const TableList = ({ dataSource, atividade, movimentacao }) => {
               width: 90,
             }}
           >
-            Search
+            Procurar
           </Button>
           <Button
             onClick={() => clearFilters && handleReset(clearFilters)}
@@ -67,7 +67,7 @@ const TableList = ({ dataSource, atividade, movimentacao }) => {
               width: 90,
             }}
           >
-            Reset
+            Limpar
           </Button>
           <Button
             type="link"
@@ -76,7 +76,7 @@ const TableList = ({ dataSource, atividade, movimentacao }) => {
               close();
             }}
           >
-            close
+            Fechar
           </Button>
         </Space>
       </div>

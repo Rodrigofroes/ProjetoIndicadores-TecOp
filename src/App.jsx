@@ -4,7 +4,7 @@ import { CompMenu } from "./components/CompMenu"
 function App() {
   return (
     <>
-      <div className="flex bg-zinc-200/60">
+      <div className="flex bg-zinc-900">
       <div className="sidebar">
         <CompMenu/>
       </div>

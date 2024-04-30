@@ -15,12 +15,13 @@ const DashDoughnut = ({dados}) => {
     };
   return (
     <div className=''>
+      <h1 className='font-medium mb-2'>Atividades por Quantidade</h1>
         <Doughnut key={Math.random()}
           data={dadosDistribuicaoAtividades}
           options={{
             plugins: {
               title: {
-                text: "Distribuição de Atividades",
+                text: "Distribuição de Atividades por Quantidade",
               },
             },
             backgroundColor: [
