@@ -116,7 +116,7 @@ const ListaRouter = () => {
         onClick={() => download()}
       >
         <FaDownLong/>
-        Exportar csv
+        Exportar dados
       </Button>
       </div>
       <TableList
