@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { Input } from 'antd';
 import DashLine from '../components/graficos/DashLine'
-import DashBar from '../components/graficos/DashBar'
+// import DashBar from '../components/graficos/DashBar'
 import DashDoughnut from '../components/graficos/DashDoughnut'
 import Axios from 'axios';
+import verifica from '../utils/verifica';
+const verificar = new verifica();
 
 const DashboardRouter = () => {
   const [dataInicio, setDataInicio] = useState('')
@@ -14,8 +16,9 @@ const DashboardRouter = () => {
   useEffect(() => {
     Axios.get('http://localhost:8000/consultar/grafico')
       .then((response) => {
-        Setdata(response.data)
+          Setdata(response.data)
       }).catch((error) => {
+        verificar.verificar(error.response.status)
         console.error('Erro ao buscar dados da API:', error)
       })
   }, []);
@@ -27,8 +30,9 @@ const DashboardRouter = () => {
         dataFinal: dataFinal
       }
     }).then((response) => {
-      setDados(response.data)
+        setDados(response.data)
     }).catch((error) => {
+      verificar.verificar(error.response.status)
       console.error('Erro ao buscar dados da API:', error)
     })
   }
@@ -36,8 +40,9 @@ const DashboardRouter = () => {
   const limparApi = () => {
     Axios.get('http://localhost:8000/consultar/grafico')
       .then((response) => {
-        setDados(response.data)
+          setDados(response.data)
       }).catch((error) => {
+        verificar.verificar(error.response.status)
         console.error('Erro ao buscar dados da API:', error)
       })
   }

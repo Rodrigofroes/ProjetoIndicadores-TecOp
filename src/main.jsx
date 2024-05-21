@@ -2,19 +2,26 @@ import React, { Children } from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, Navigate, Outlet, RouterProvider } from 'react-router-dom'
 import DashboardRouter from './routes/DashboardRouter.jsx'
 import ListaRouter from './routes/ListaRouter.jsx'
-import HomeRouter from './routes/HomeRouter.jsx'
+import Login from './routes/Login.jsx'
+import Axios from 'axios'
+import Cadastro from './routes/Cadastro.jsx'
+
+Axios.defaults.withCredentials = true; 
 
 const router = createBrowserRouter([
   { path: '/', 
-    element: <App />, 
+    element: <App/>, 
     children:[
-      { path: '/', element: <HomeRouter/> },
-      { path: 'dashboard', element: <DashboardRouter/> },
+      { path: '/', element: <DashboardRouter/> },
       { path: 'lista', element: <ListaRouter/> },
+      {path: 'cadastro', element: <Cadastro/> }
     ],
+  },
+  {
+    path: 'login', element: <Login/>
   },
 ]);
 

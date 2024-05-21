@@ -1,14 +1,19 @@
-import React from 'react'
-import { FaFeather } from "react-icons/fa6";
+import React from "react";
+import { UserOutlined } from "@ant-design/icons";
+import { Avatar, Space } from "antd";
 
 const Logo = () => {
   return (
-    <div className='flex items-center justify-center p-2'>
-        <div className='w-10 h-10 flex items-center justify-center text-2xl'>
-            <FaFeather/>
-        </div>
+    <div className="flex items-center justify-center p-2">
+      <div className="w-10 h-10 mt-10 flex items-center justify-center text-2xl">
+        <Space direction="vertical" size={16}>
+          <Space wrap size={16}>
+            <Avatar size={64} icon={<UserOutlined />} />
+          </Space>
+        </Space>
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default Logo
+export default Logo;

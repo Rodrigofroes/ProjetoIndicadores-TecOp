@@ -1,10 +1,11 @@
 import React, { useState, useRef } from "react";
 import { Table, Modal, Input, Space, Button } from "antd";
+import Axios from "axios";
 import { FaPen } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa6";
-import Axios from "axios";
 import { SearchOutlined } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
+import moment from "moment-timezone";
 
 const TableList = ({ dataSource, atividade, movimentacao }) => {
   const [searchText, setSearchText] = useState('');
@@ -116,6 +117,7 @@ const TableList = ({ dataSource, atividade, movimentacao }) => {
       key: "tabela_data",
       title: "Data",
       dataIndex: "tabela_data",
+      render: (text) => moment(text, 'YYYY-MM-DD').format("DD/MM/YYYY"),
       ...getColumnSearchProps('tabela_data')
     },
     {
@@ -134,6 +136,12 @@ const TableList = ({ dataSource, atividade, movimentacao }) => {
       key: "tabela_quantidade",
       title: "Quantidade",
       dataIndex: "tabela_quantidade",
+    },
+    {
+      key: "user_usuario",
+      title: "Usuário",
+      dataIndex: "user_usuario",
+      ...getColumnSearchProps('user_usuario')
     },
     {
       key: "tabela_id",

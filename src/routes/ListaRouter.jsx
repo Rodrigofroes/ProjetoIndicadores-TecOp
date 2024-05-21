@@ -7,7 +7,9 @@ import { Button, Input, Modal } from "antd";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as XLSX from 'xlsx';
+import * as XLSX from "xlsx";
+import verifica from "../utils/verifica";
+const verificar = new verifica();
 
 const handleSchameCustom = z.object({
   data: z.string().min(1, { message: "*Campo obrigatório" }),
@@ -26,25 +28,31 @@ const ListaRouter = () => {
   useEffect(() => {
     Axios.get("http://localhost:8000/consultar/listagem")
       .then((response) => {
+        verificar.verificar(response.status);
         setDataSource(response.data);
       })
       .catch((error) => {
+        verificar.verificar(error.response.status);
         console.log(error);
       });
 
     Axios.get("http://localhost:8000/consultar/atividade")
       .then((response) => {
+        verificar.verificar(response.status);
         setAtividade(response.data);
       })
       .catch((error) => {
+        verificar.verificar(error.response.status);
         console.log(error);
       });
 
     Axios.get("http://localhost:8000/consultar/movimentacao")
       .then((response) => {
+        verificar.verificar(response.status);
         setMovimentacao(response.data);
       })
       .catch((error) => {
+        verificar.verificar(error.response.status);
         console.log(error);
       });
   }, []);
@@ -65,9 +73,11 @@ const ListaRouter = () => {
       movimentacao: data.movimentacao,
     })
       .then((response) => {
+        verificar.verificar(response.status);
         console.log(response);
       })
       .catch((error) => {
+        verificar.verificar(error.response.status);
         console.error(error);
       });
 
@@ -78,46 +88,44 @@ const ListaRouter = () => {
     setIsModalOpen(true);
   };
 
-
   const download = () => {
-
-      Axios.get("http://localhost:8000/consultar/download")
+    Axios.get("http://localhost:8000/consultar/download")
       .then((response) => {
+        verificar.verificar(response.status);
         setDados(response.data);
       })
       .catch((error) => {
+        verificar.verificar(error.response.status);
         console.error(error);
       });
 
-      console.log(dados);
+    console.log(dados);
 
     const ws = XLSX.utils.json_to_sheet(dados);
     const wb = XLSX.utils.book_new();
 
     XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
     XLSX.writeFile(wb, "Arquivo.xlsx");
-
-
-  }
+  };
 
   return (
     <div>
       <div className="flex items-center justify-between">
-      <Button
-        type="primary"
-        className="flex items-center gap-2 font-medium mb-2"
-        onClick={() => onAdd()}
-      >
-        <FaPlus />
-        Cadastrar
-      </Button>
-      <Button 
-        className="hover:text-blue-500 text-xs flex items-center gap-2"
-        onClick={() => download()}
-      >
-        <FaDownLong/>
-        Exportar dados
-      </Button>
+        <Button
+          type="primary"
+          className="flex items-center gap-2 font-medium mb-2"
+          onClick={() => onAdd()}
+        >
+          <FaPlus />
+          Cadastrar
+        </Button>
+        <Button
+          className="hover:text-blue-500 text-xs flex items-center gap-2"
+          onClick={() => download()}
+        >
+          <FaDownLong />
+          Exportar dados
+        </Button>
       </div>
       <TableList
         dataSource={dataSource}
@@ -156,7 +164,9 @@ const ListaRouter = () => {
             <div className="flex gap-5">
               <div className="w-80 flex flex-col">
                 <label htmlFor="inputAtividade">Atividade:</label>
-                <select variant="outline" {...register("atividade")}
+                <select
+                  variant="outline"
+                  {...register("atividade")}
                   className="border border-gray-300 rounded-md p-2"
                 >
                   {atividade.map((items) => (
@@ -174,7 +184,9 @@ const ListaRouter = () => {
 
               <div className="w-80 flex flex-col">
                 <label htmlFor="inputMovimentacao">Movimentação:</label>
-                <select variant="outline" {...register("movimentacao")} 
+                <select
+                  variant="outline"
+                  {...register("movimentacao")}
                   className="border border-gray-300 rounded-md p-2"
                 >
                   {movimentacao.map((items) => (
@@ -203,7 +215,7 @@ const ListaRouter = () => {
                 {errors.quantidade.message}
               </span>
             )}
-            <button 
+            <button
               type="submit"
               className="bg-blue-500 text-white p-2 rounded-md"
             >
@@ -212,7 +224,6 @@ const ListaRouter = () => {
           </div>
         </form>
       </Modal>
-      
     </div>
   );
 };
