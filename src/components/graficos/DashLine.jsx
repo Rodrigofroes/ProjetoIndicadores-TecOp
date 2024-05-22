@@ -9,9 +9,11 @@ const DashLine = ({dados}) => {
   const quantidades = dados.map((data) => data.tabela_quantidade);
 
   return (
-    <div className="">
-      <h1 className="font-medium font-1xl mb-2">Atividade ao longo do tempo</h1>
-      <Line key={Math.random()}
+    <div className="chart-container" style={{ width: '100%', maxWidth: '800px', height: '400px', margin: '0 auto' }}>
+      <h1 className="font-medium text-1xl mb-2">Atividade ao longo do tempo</h1>
+      <Line
+        key={Math.random()}
+        type="line"
         inputMode="search"
         data={{
           labels: labels,
@@ -35,11 +37,12 @@ const DashLine = ({dados}) => {
               text: "Atividade ao longo do Tempo",
             },
           },
+          maintainAspectRatio: false,  // Adicione esta linha para controlar o aspecto
         }}
       />
     </div>
   );
-  
 };
+  
 
 export default DashLine;
