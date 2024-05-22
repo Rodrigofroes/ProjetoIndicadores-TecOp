@@ -6,6 +6,18 @@ import { Link } from 'react-router-dom'
 import { FaUser } from "react-icons/fa6";
 import { FaFileSignature } from "react-icons/fa6";
 import { FaPlus } from "react-icons/fa6";
+import verifica from '../utils/verifica';
+const { decodeToken } =  new verifica();
+
+const validar = () =>{
+  if(document.cookie != ""){
+    const token = document.cookie.split('; ').find(row => row.startsWith('token=')).split('=')[1];
+    const tipo = decodeToken(token);
+    return tipo.tipo;
+  }
+}
+
+const user = validar();
 
 const MenuList = () => {
   return (
@@ -18,11 +30,11 @@ const MenuList = () => {
               <Link to="/lista">Listagem</Link>
             </Menu.Item>
         </Menu.SubMenu>
-        <Menu.SubMenu title="Cadastrar" icon={<FaPlus/>} key={"Cadastrar"}>
+        {user == 1 && (<Menu.SubMenu title="Cadastrar" icon={<FaPlus/>} key={"Cadastrar"}>
           <Menu.Item key={"user"} icon={<FaUser/>}>
             <Link to="/cadastro">Usuário</Link>
           </Menu.Item>
-        </Menu.SubMenu>
+        </Menu.SubMenu>)}
     </Menu>
    
   )

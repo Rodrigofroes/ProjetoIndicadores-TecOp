@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button, Form, Input, Modal } from "antd";
 import Axios from "axios";
+import verifica from "../utils/verifica";
 
 const onFinish = (values) => {
   Axios.post("http://localhost:8000/auth/login", {
@@ -9,9 +10,10 @@ const onFinish = (values) => {
   })
     .then((response) => {
       if (response.status == 201) {
-        window.location.href = "/";
+        window.location.href = "/";  
       } else {
         Modal.error({
+          visible: true,
           title: "Erro",
           content: response.data.msg,
         });
@@ -76,7 +78,6 @@ const Login = () => {
           >
             <Input.Password />
           </Form.Item>
-
           <Form.Item
             wrapperCol={{
               offset: 8,

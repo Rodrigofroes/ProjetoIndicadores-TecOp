@@ -6,8 +6,11 @@ import { FaTrash } from "react-icons/fa6";
 import { SearchOutlined } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
 import moment from "moment-timezone";
+import verifica from "../utils/verifica";
+const { decodeToken } = new verifica();
 
-const TableList = ({ dataSource, atividade, movimentacao }) => {
+const TableList = ({dataSource, atividade, movimentacao }) => {
+
   const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState('');
   const searchInput = useRef(null);
@@ -159,6 +162,39 @@ const TableList = ({ dataSource, atividade, movimentacao }) => {
     },
   ];
 
+  const columnsUser = [
+    {
+      key: "tabela_data",
+      title: "Data",
+      dataIndex: "tabela_data",
+      render: (text) => moment(text, 'YYYY-MM-DD').format("DD/MM/YYYY"),
+      ...getColumnSearchProps('tabela_data')
+    },
+    {
+      key: "ati_nome",
+      title: "Atividade",
+      dataIndex: "ati_nome",
+      ...getColumnSearchProps('ati_nome')
+    },
+    {
+      key: "mov_nome",
+      title: "Movimentação",
+      dataIndex: "mov_nome",
+      ...getColumnSearchProps('mov_nome')
+    },
+    {
+      key: "tabela_quantidade",
+      title: "Quantidade",
+      dataIndex: "tabela_quantidade",
+    },
+    {
+      key: "user_usuario",
+      title: "Usuário",
+      dataIndex: "user_usuario",
+      ...getColumnSearchProps('user_usuario')
+    }
+  ];
+
   const deleteUser = (id) => {
     Modal.confirm({
       title: "Excluir usuário",
@@ -197,7 +233,6 @@ const TableList = ({ dataSource, atividade, movimentacao }) => {
   };
 
   const alterUser = (id) => {
-    console.log(id);
     Axios.get(`http://localhost:8000/cadastro/consulta/${id}`)
       .then((response) => {
         setListagem(response.data);
@@ -208,9 +243,18 @@ const TableList = ({ dataSource, atividade, movimentacao }) => {
     setEdit(true);
   };
 
+  const validar = () =>{
+    if(document.cookie != ""){
+      const token = document.cookie.split('; ').find(row => row.startsWith('token=')).split('=')[1];
+      const tipo = decodeToken(token);
+      return tipo.tipo;
+    }
+  }
+
+  const user = validar();
   return (
     <div>
-      <Table columns={columns} dataSource={dataSource} pagination={{pageSize: 8}}></Table>
+      <Table columns={user == 1 ? columns : columnsUser} dataSource={dataSource} pagination={{pageSize: 8}}></Table>
       <Modal
         title="Alterar Atividade"
         visible={edit}

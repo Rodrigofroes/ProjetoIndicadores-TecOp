@@ -10,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as XLSX from "xlsx";
 import verifica from "../utils/verifica";
 const verificar = new verifica();
+const { consultaTipo } = new verifica();
 
 const handleSchameCustom = z.object({
   data: z.string().min(1, { message: "*Campo obrigatório" }),
