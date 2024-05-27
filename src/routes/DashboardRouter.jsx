@@ -1,59 +1,29 @@
-import React, { useEffect, useState } from "react";
+import GraphBar from "../components/graficos/GraphBar";
+import GraphPie from "../components/graficos/DashDoughnut";
 import { Input } from "antd";
-import DashLine from "../components/graficos/DashLine";
-// import DashBar from '../components/graficos/DashBar'
-import DashDoughnut from "../components/graficos/DashDoughnut";
-import Axios from "axios";
-import verifica from "../utils/verifica";
-
-const verificar = new verifica();
+import { useEffect, useState } from "react";
+import  Axios  from "axios";
 
 const DashboardRouter = () => {
-  const [dataInicio, setDataInicio] = useState("");
-  const [dataFinal, setDataFinal] = useState("");
-  const [dados, setDados] = useState([]);
-  const [data, Setdata] = useState([]);
+  const[data, setData] = useState([]);
+  const conexao = () => {
+    Axios.get('http://localhost:8000/consultar/grafico')
+    .then((response) => {
+      setData(response.data)
+    })
+    .catch((error) => {
+      console.log(error)
+    })
+  }
 
   useEffect(() => {
-    Axios.get("http://localhost:8000/consultar/grafico")
-      .then((response) => {
-        Setdata(response.data);
-      })
-      .catch((error) => {
-        verificar.verificar(error.response.status);
-        console.error("Erro ao buscar dados da API:", error);
-      });
-  }, []);
+    conexao();
+  }, [])
 
-  const filtroApi = () => {
-    Axios.get("http://localhost:8000/consultar/filtro", {
-      params: {
-        dataInicio: dataInicio,
-        dataFinal: dataFinal,
-      },
-    })
-      .then((response) => {
-        setDados(response.data);
-      })
-      .catch((error) => {
-        verificar.verificar(error.response.status);
-        console.error("Erro ao buscar dados da API:", error);
-      });
-  };
-
-  const limparApi = () => {
-    Axios.get("http://localhost:8000/consultar/grafico")
-      .then((response) => {
-        setDados(response.data);
-      })
-      .catch((error) => {
-        verificar.verificar(error.response.status);
-        console.error("Erro ao buscar dados da API:", error);
-      });
-  };
+  console.log(data)
 
   return (
-    <>
+    <div className="flex flex-col bg-white rounded-lg p-4  h-full gap-2">
       <div className="flex items-center justify-between p-4 gap-4">
         <div className="bg-blue-500 w-52 justify-between dark:bg-gray-800 shadow-lg rounded-md flex items-center p-3 border-b-4 border-blue-600 dark:border-gray-600 text-white font-medium group">
           <div className="flex justify-center items-center w-14 h-14 bg-white rounded-full transition-all duration-300 transform group-hover:rotate-12">
@@ -78,40 +48,12 @@ const DashboardRouter = () => {
             <p>Atividades</p>
           </div>
         </div>
-        <div className="flex flex-col sm:flex-row">
-          <Input
-            type="date"
-            placeholder="Data Inicial"
-            className="mr-2 mb-2 sm:mb-0"
-            onChange={(e) => setDataInicio(e.target.value)}
-          />
-          <Input
-            type="date"
-            placeholder="Data Final"
-            className="mr-2 mb-2 sm:mb-0"
-            onChange={(e) => setDataFinal(e.target.value)}
-          />
-          <div className="flex gap-2">
-            <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              onClick={filtroApi}
-            >
-              Filtrar
-            </button>
-            <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              onClick={limparApi}
-            >
-              Limpar
-            </button>
-          </div>
-        </div>
       </div>
-      <div className="bg-white p-10 rounded-lg">
-        <DashLine dados={data} />
+      <div className="flex mt-10 items-center">
+        <GraphBar  data={data}/>
+        <GraphPie data={data} />
       </div>
-    </>
+    </div>
   );
 };
-
 export default DashboardRouter;

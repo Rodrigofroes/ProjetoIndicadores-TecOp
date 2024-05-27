@@ -1,7 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import TableList from "../components/TableList";
 import Axios from "axios";
-import { FaDownLong } from "react-icons/fa6";
 import { FaPlus } from "react-icons/fa6";
 import { Button, Input, Modal } from "antd";
 import { useForm } from "react-hook-form";
@@ -10,7 +9,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as XLSX from "xlsx";
 import verifica from "../utils/verifica";
 const verificar = new verifica();
-const { consultaTipo } = new verifica();
 
 const handleSchameCustom = z.object({
   data: z.string().min(1, { message: "*Campo obrigatório" }),
@@ -89,46 +87,20 @@ const ListaRouter = () => {
     setIsModalOpen(true);
   };
 
-  const download = () => {
-    Axios.get("http://localhost:8000/consultar/download")
-      .then((response) => {
-        verificar.verificar(response.status);
-        setDados(response.data);
-      })
-      .catch((error) => {
-        verificar.verificar(error.response.status);
-        console.error(error);
-      });
-
-    console.log(dados);
-
-    const ws = XLSX.utils.json_to_sheet(dados);
-    const wb = XLSX.utils.book_new();
-
-    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-    XLSX.writeFile(wb, "Arquivo.xlsx");
-  };
-
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <Button
-          type="primary"
-          className="flex items-center gap-2 font-medium mb-2"
-          onClick={() => onAdd()}
-        >
-          <FaPlus />
-          Cadastrar
-        </Button>
-        <Button
-          className="hover:text-blue-500 text-xs flex items-center gap-2"
-          onClick={() => download()}
-        >
-          <FaDownLong />
-          Exportar dados
-        </Button>
-      </div>
+      <div className="flex items-center"></div>
       <TableList
+        children={
+          <Button
+            type="primary"
+            className="flex gap-2 items-center font-medium"
+            onClick={() => onAdd()}
+          >
+            <FaPlus />
+            Cadastrar
+          </Button>
+        }
         dataSource={dataSource}
         atividade={atividade}
         movimentacao={movimentacao}

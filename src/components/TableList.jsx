@@ -1,18 +1,19 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, Children } from "react";
 import { Table, Modal, Input, Space, Button } from "antd";
 import Axios from "axios";
+import { FaDownLong } from "react-icons/fa6";
 import { FaPen } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa6";
-import { SearchOutlined } from '@ant-design/icons';
-import Highlighter from 'react-highlight-words';
+import { SearchOutlined } from "@ant-design/icons";
+import Highlighter from "react-highlight-words";
 import moment from "moment-timezone";
 import verifica from "../utils/verifica";
 const { decodeToken } = new verifica();
+import * as XLSX from "xlsx";
 
-const TableList = ({dataSource, atividade, movimentacao }) => {
-
-  const [searchText, setSearchText] = useState('');
-  const [searchedColumn, setSearchedColumn] = useState('');
+const TableList = ({ children,dataSource, atividade, movimentacao }) => {
+  const [searchText, setSearchText] = useState("");
+  const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef(null);
 
   const [edit, setEdit] = useState(false);
@@ -23,6 +24,23 @@ const TableList = ({dataSource, atividade, movimentacao }) => {
   const [dataNova, setDataNova] = useState(null);
   const [quantidade, setQuantidade] = useState(null);
 
+  const tableRef = useRef(null);
+
+  const download = () => {
+    const activeColumns = user === 1 ? columns : columnsUser;
+
+    const data = dataSource.map((row) =>
+      activeColumns.map((col) => row[col.dataIndex])
+    );
+    const header = activeColumns.map((col) => col.title);
+
+    const ws = XLSX.utils.aoa_to_sheet([header, ...data]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+
+    XLSX.writeFile(wb, "relatorio-usuarios.xlsx");
+  };
+
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
     setSearchText(selectedKeys[0]);
@@ -31,10 +49,16 @@ const TableList = ({dataSource, atividade, movimentacao }) => {
 
   const handleReset = (clearFilters) => {
     clearFilters();
-    setSearchText('');
+    setSearchText("");
   };
   const getColumnSearchProps = (dataIndex) => ({
-    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+      close,
+    }) => (
       <div
         style={{
           padding: 8,
@@ -45,11 +69,13 @@ const TableList = ({dataSource, atividade, movimentacao }) => {
           ref={searchInput}
           placeholder={`Search ${dataIndex}`}
           value={selectedKeys[0]}
-          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
           onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
           style={{
             marginBottom: 8,
-            display: 'block',
+            display: "block",
           }}
         />
         <Space>
@@ -88,7 +114,7 @@ const TableList = ({dataSource, atividade, movimentacao }) => {
     filterIcon: (filtered) => (
       <SearchOutlined
         style={{
-          color: filtered ? '#1677ff' : undefined,
+          color: filtered ? "#1677ff" : undefined,
         }}
       />
     ),
@@ -103,12 +129,12 @@ const TableList = ({dataSource, atividade, movimentacao }) => {
       searchedColumn === dataIndex ? (
         <Highlighter
           highlightStyle={{
-            backgroundColor: '#ffc069',
+            backgroundColor: "#ffc069",
             padding: 0,
           }}
           searchWords={[searchText]}
           autoEscape
-          textToHighlight={text ? text.toString() : ''}
+          textToHighlight={text ? text.toString() : ""}
         />
       ) : (
         text
@@ -120,20 +146,20 @@ const TableList = ({dataSource, atividade, movimentacao }) => {
       key: "tabela_data",
       title: "Data",
       dataIndex: "tabela_data",
-      render: (text) => moment(text, 'YYYY-MM-DD').format("DD/MM/YYYY"),
-      ...getColumnSearchProps('tabela_data')
+      render: (text) => moment(text, "YYYY-MM-DD").format("DD/MM/YYYY"),
+      ...getColumnSearchProps("tabela_data"),
     },
     {
       key: "ati_nome",
       title: "Atividade",
       dataIndex: "ati_nome",
-      ...getColumnSearchProps('ati_nome')
+      ...getColumnSearchProps("ati_nome"),
     },
     {
       key: "mov_nome",
       title: "Movimentação",
       dataIndex: "mov_nome",
-      ...getColumnSearchProps('mov_nome')
+      ...getColumnSearchProps("mov_nome"),
     },
     {
       key: "tabela_quantidade",
@@ -144,7 +170,7 @@ const TableList = ({dataSource, atividade, movimentacao }) => {
       key: "user_usuario",
       title: "Usuário",
       dataIndex: "user_usuario",
-      ...getColumnSearchProps('user_usuario')
+      ...getColumnSearchProps("user_usuario"),
     },
     {
       key: "tabela_id",
@@ -167,20 +193,20 @@ const TableList = ({dataSource, atividade, movimentacao }) => {
       key: "tabela_data",
       title: "Data",
       dataIndex: "tabela_data",
-      render: (text) => moment(text, 'YYYY-MM-DD').format("DD/MM/YYYY"),
-      ...getColumnSearchProps('tabela_data')
+      render: (text) => moment(text, "YYYY-MM-DD").format("DD/MM/YYYY"),
+      ...getColumnSearchProps("tabela_data"),
     },
     {
       key: "ati_nome",
       title: "Atividade",
       dataIndex: "ati_nome",
-      ...getColumnSearchProps('ati_nome')
+      ...getColumnSearchProps("ati_nome"),
     },
     {
       key: "mov_nome",
       title: "Movimentação",
       dataIndex: "mov_nome",
-      ...getColumnSearchProps('mov_nome')
+      ...getColumnSearchProps("mov_nome"),
     },
     {
       key: "tabela_quantidade",
@@ -191,8 +217,8 @@ const TableList = ({dataSource, atividade, movimentacao }) => {
       key: "user_usuario",
       title: "Usuário",
       dataIndex: "user_usuario",
-      ...getColumnSearchProps('user_usuario')
-    }
+      ...getColumnSearchProps("user_usuario"),
+    },
   ];
 
   const deleteUser = (id) => {
@@ -215,7 +241,7 @@ const TableList = ({dataSource, atividade, movimentacao }) => {
   };
 
   const saveUser = (data) => {
-    const id = data.map(item => item.tabela_id)
+    const id = data.map((item) => item.tabela_id);
     Axios.post(`http://localhost:8000/cadastro/alteracao/${id}`, {
       data: dataNova,
       atividade: ati,
@@ -243,18 +269,37 @@ const TableList = ({dataSource, atividade, movimentacao }) => {
     setEdit(true);
   };
 
-  const validar = () =>{
-    if(document.cookie != ""){
-      const token = document.cookie.split('; ').find(row => row.startsWith('token=')).split('=')[1];
+  const validar = () => {
+    if (document.cookie != "") {
+      const token = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("token="))
+        .split("=")[1];
       const tipo = decodeToken(token);
       return tipo.tipo;
     }
-  }
+  };
 
   const user = validar();
   return (
     <div>
-      <Table columns={user == 1 ? columns : columnsUser} dataSource={dataSource} pagination={{pageSize: 8}}></Table>
+      <div className="flex justify-between mb-2 items-center gap-4">
+        {children}
+        <Button
+          className="hover:text-blue-500  text-xs flex items-center gap-2"
+          onClick={() => download()}
+        >
+          <FaDownLong />
+          Exportar dados
+        </Button>
+      </div>
+      <Table
+        id="Table"
+        ref={tableRef}
+        columns={user == 1 ? columns : columnsUser}
+        dataSource={dataSource}
+        pagination={{ pageSize: 8 }}
+      ></Table>
       <Modal
         title="Alterar Atividade"
         visible={edit}
@@ -339,7 +384,7 @@ const TableList = ({dataSource, atividade, movimentacao }) => {
                 </div>
               </div>
             ))}
-            <button 
+            <button
               type="submit"
               className="bg-blue-500 text-white p-2 rounded-md"
               onClick={() => saveUser(listagem)}
