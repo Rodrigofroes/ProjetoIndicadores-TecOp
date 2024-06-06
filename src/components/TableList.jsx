@@ -6,12 +6,11 @@ import { FaPen } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa6";
 import { SearchOutlined } from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
-import moment from "moment-timezone";
 import verifica from "../utils/verifica";
 const { decodeToken } = new verifica();
 import * as XLSX from "xlsx";
 
-const TableList = ({ children,dataSource, atividade, movimentacao }) => {
+const TableList = ({children,dataSource, atividade, movimentacao }) => {
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef(null);
@@ -141,12 +140,12 @@ const TableList = ({ children,dataSource, atividade, movimentacao }) => {
       ),
   });
 
+
   const columns = [
     {
       key: "tabela_data",
       title: "Data",
       dataIndex: "tabela_data",
-      render: (text) => moment(text, "YYYY-MM-DD").format("DD/MM/YYYY"),
       ...getColumnSearchProps("tabela_data"),
     },
     {
@@ -167,10 +166,10 @@ const TableList = ({ children,dataSource, atividade, movimentacao }) => {
       dataIndex: "tabela_quantidade",
     },
     {
-      key: "user_usuario",
+      key: "user_nome",
       title: "Usuário",
-      dataIndex: "user_usuario",
-      ...getColumnSearchProps("user_usuario"),
+      dataIndex: "user_nome",
+      ...getColumnSearchProps("user_nome"),
     },
     {
       key: "tabela_id",
@@ -188,12 +187,13 @@ const TableList = ({ children,dataSource, atividade, movimentacao }) => {
     },
   ];
 
+  
+
   const columnsUser = [
     {
       key: "tabela_data",
       title: "Data",
       dataIndex: "tabela_data",
-      render: (text) => moment(text, "YYYY-MM-DD").format("DD/MM/YYYY"),
       ...getColumnSearchProps("tabela_data"),
     },
     {
@@ -214,10 +214,10 @@ const TableList = ({ children,dataSource, atividade, movimentacao }) => {
       dataIndex: "tabela_quantidade",
     },
     {
-      key: "user_usuario",
+      key: "user_nome",
       title: "Usuário",
-      dataIndex: "user_usuario",
-      ...getColumnSearchProps("user_usuario"),
+      dataIndex: "user_nome",
+      ...getColumnSearchProps("user_nome"),
     },
   ];
 

@@ -6,12 +6,17 @@ import { Button, Input, Modal } from "antd";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as XLSX from "xlsx";
 import verifica from "../utils/verifica";
 const verificar = new verifica();
 
 const handleSchameCustom = z.object({
-  data: z.string().min(1, { message: "*Campo obrigatório" }),
+  data: z.string()
+    .min(1, { message: "*Campo obrigatório" })
+    .refine((val) => {
+      const today = new Date();
+      const inputDate = new Date(val);
+      return inputDate <= new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    }, { message: "A data não pode ser maior ao dia atual" }),
   atividade: z.string().min(1, { message: "*Campo obrigatório" }),
   movimentacao: z.string().min(1, { message: "*Campo obrigatório" }),
   quantidade: z.string().min(1, { message: "*Campo obrigatório" }),

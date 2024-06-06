@@ -1,123 +1,33 @@
-import React, { useState, useEffect } from "react";
-import { Button, Form, Input, Select, Space } from "antd";
-import Axios from "axios";
-
-const onFinish = (values) => {
-  Axios.post("http://localhost:8000/cadastro/user", {
-    usuario: values.username,
-    senha: values.password,
-    cargo: values.Cargo,
-  })
-    .then((response) => {
-      console.log(response.data.msg);
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-};
-
-const onFinishFailed = (errorInfo) => {
-  console.log("Failed:", errorInfo);
-};
-
+import React from 'react';
+import {Button, Tabs } from 'antd';
+import CadastroUsuario from '../pages/CadastroUsuario.jsx';
+const items = [
+  {
+    key: '1',
+    label: 'Usuario',
+    children: <CadastroUsuario/>,
+  },
+  {
+    key: '2',
+    label: 'Atividade',
+    children: 'Content of Tab Pane 2',
+  },
+  {
+    key: '3',
+    label: 'Movimentação',
+    children: 'Content of Tab Pane 3',
+  }
+];
 const Cadastro = () => {
-  const [option, setOption] = useState([]);
-
-  const getOption = () => {
-    Axios.get("http://localhost:8000/cadastro/options")
-      .then((response) => {
-        setOption(response.data);
-      })
-      .catch((error) => {
-        console.error("Erro ao buscar dados da API:", error);
-      });
-  };
-
-  useEffect(() => {
-    getOption();
-  }, []);
-
   return (
-    <div className="flex items-center justify-center h-screen">
-      <div className="shadow-lg bg-white p-4 rounded-lg flex gap-4 flex-col items-center">
-        <h1 className="text-xl font-medium">Cadastro</h1>
-        <Form
-          layout="horizontal"
-          size="large"
-          name="basic"
-          labelCol={{
-            span: 8,
-          }}
-          wrapperCol={{
-            span: 18,
-          }}
-          style={{
-            maxWidth: 300,
-          }}
-          initialValues={{
-            remember: true,
-          }}
-          onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
-          autoComplete="off"
-        >
-          <Form.Item
-            label="Usuário"
-            name="username"
-            rules={[
-              {
-                required: true,
-                message: "Campo obrigatório!",
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-
-          <Form.Item
-            label="Senha"
-            name="password"
-            rules={[
-              {
-                required: true,
-                message: "Campo obrigatório!",
-              },
-            ]}
-          >
-            <Input.Password />
-          </Form.Item>
-
-          <Form.Item
-            label="Cargo"
-            name="Cargo"
-            rules={[
-                {
-                required: true,
-                message: "Campo obrigatório!",
-                },
-            ]}
-          >
-            <Select defaultValue="Escolha" style={{ width: 120 }}>
-              {option.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.tipo}
-                </option>
-              ))}
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            wrapperCol={{
-              offset: 8,
-              span: 16,
-            }}
-          >
-            <Button type="primary" htmlType="submit">
-              Entrar
-            </Button>
-          </Form.Item>
-        </Form>
-      </div>
+    <div className='flex flex-col bg-white rounded-lg p-4  h-full gap-2'>
+      <Tabs
+        defaultActiveKey="1"
+        items={items}
+        indicator={{
+          size: (origin) => origin - 20,
+        }}
+      />
     </div>
   );
 };

@@ -8,7 +8,7 @@ const Logo = () => {
       <div className="w-10 h-10 mt-10 flex items-center justify-center text-2xl">
         <Space direction="vertical" size={16}>
           <Space wrap size={16}>
-            <Avatar size={64} icon={<UserOutlined />} />
+            <img src="icons/iconTecOp.png" alt="" />
           </Space>
         </Space>
       </div>

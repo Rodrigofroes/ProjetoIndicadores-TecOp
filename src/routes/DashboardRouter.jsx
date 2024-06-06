@@ -1,26 +1,85 @@
 import GraphBar from "../components/graficos/GraphBar";
 import GraphPie from "../components/graficos/DashDoughnut";
-import { Input } from "antd";
+import { Select } from "antd";
 import { useEffect, useState } from "react";
-import  Axios  from "axios";
+import Axios from "axios";
+import verifica from "../utils/verifica";
+const verificar = new verifica();
 
 const DashboardRouter = () => {
-  const[data, setData] = useState([]);
+  const [data, setData] = useState([]);
+  const [mes, setMes] = useState([]);
+  const [valorMes, setValorMes] = useState([]);
+
   const conexao = () => {
     Axios.get('http://localhost:8000/consultar/grafico')
-    .then((response) => {
-      setData(response.data)
-    })
-    .catch((error) => {
-      console.log(error)
-    })
+      .then((response) => {
+        setData(response.data)
+      })
+      .catch((error) => {
+        verificar.verificar(error.response.status);
+      })
   }
 
   useEffect(() => {
     conexao();
   }, [])
 
-  console.log(data)
+
+  const filtroAno = () => {
+    const anos = new Set();
+    data.forEach((item) => {
+      const ano = item.tabela_data.split("-")[0];
+      anos.add(ano);
+    });
+    return Array.from(anos);
+  };
+
+  const filtroMes = () => {
+    const meses = new Set();
+    mes.forEach((item) => {
+      const mes = item.tabela_data.split("-")[1];
+      meses.add(mes);
+    });
+    return Array.from(meses);
+  };
+
+  const handleChangeAno = (value) => {
+    Axios.get(`http://localhost:8000/consultar/grafico/${value}`)
+      .then((response) => {
+        setMes(response.data)
+      })
+      .catch((error) => {
+        verificar.verificar(error.response.status);
+      })
+  };
+
+  const handleChangeMes = (value) => {
+    Axios.get(`http://localhost:8000/consultar/grafico/mes/${value}`)
+      .then((response) => {
+        setValorMes(response.data)
+      })
+      .catch((error) => {
+        verificar.verificar(error.response.status);
+      })
+  };
+
+  const labelsMes = [
+    "Janeiro",
+    "Fevereiro",
+    "Março",
+    "Abril",
+    "Maio",
+    "Junho",
+    "Julho",
+    "Agosto",
+    "Setembro",
+    "Outubro",
+    "Novembro",
+    "Dezembro",
+  ];
+
+  console.log(mes);
 
   return (
     <div className="flex flex-col bg-white rounded-lg p-4  h-full gap-2">
@@ -48,10 +107,31 @@ const DashboardRouter = () => {
             <p>Atividades</p>
           </div>
         </div>
+        <div className="flex items-center gap-2 w-42">
+          <div>
+            <p>Filtros: </p>
+          </div>
+          <div>
+            <Select
+              defaultValue="Ano"
+              style={{ width: 120 }}
+              onChange={handleChangeAno}
+              options={filtroAno().map((ano) => ({ label: ano, value: ano }))}
+            />
+          </div>
+          <div>
+            <Select
+              defaultValue="Mês"
+              style={{ width: 120 }}
+              onChange={handleChangeMes}
+              options={filtroMes().map((mes) => ({ label: mes, value: mes }))}
+            />
+          </div>
+        </div>
       </div>
       <div className="flex mt-10 items-center">
-        <GraphBar  data={data}/>
-        <GraphPie data={data} />
+        <GraphBar data={mes == "" ? data : mes} />
+        <GraphPie data={valorMes == "" ? data : valorMes} />
       </div>
     </div>
   );

@@ -57,7 +57,6 @@ const GraphPie = ({ data }) => {
     },
   };
 
-  console.log(data)
 
   const somaAtividade = () => {
     const atividades = data.map((data) => data.ati_nome);
@@ -67,6 +66,7 @@ const GraphPie = ({ data }) => {
       labels: atividadesUnicas,
       datasets: [
         {
+          label: "Atividade por Mês",
           data: atividadesUnicas.map((atividade) =>
             quantidades.reduce(
               (total, quantidade, index) =>

@@ -47,11 +47,9 @@ const MenuList = () => {
         </Menu.Item>
       </Menu.SubMenu>
       {user == 1 && (
-        <Menu.SubMenu title="Cadastrar" icon={<FaPlus />} key={"Cadastrar"}>
-          <Menu.Item key={"user"} icon={<FaUser />}>
-            <Link to="/cadastro">Usuário</Link>
-          </Menu.Item>
-        </Menu.SubMenu>
+        <Menu.Item icon={<FaPlus />} key={"Cadastrar"}>
+            <Link to="/cadastro">Cadastrar</Link>
+        </Menu.Item>
       )}
       {user && (
         <Menu.Item key={"sair"} icon={<FaRightFromBracket />}>

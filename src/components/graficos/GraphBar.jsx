@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Bar } from "react-chartjs-2";
+import { Select } from "antd";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -28,6 +29,10 @@ const GraphBar = ({data}) => {
   const pieChartRef = useRef(null);
 
 
+  const tratamentoAno = (data) => {
+    
+  }
+
 
   useEffect(() => {
     // Limpar os gráficos quando o componente for desmontado
@@ -39,6 +44,7 @@ const GraphBar = ({data}) => {
         pieChartRef.current.chartInstance.destroy();
       }
     };
+    
   }, []);
 
   const optionsBar = {
@@ -69,28 +75,22 @@ const GraphBar = ({data}) => {
     "12": "Dezembro",
   };
 
-  console.log(data);
 
   const somaValue = () => {
     const groupedValues = {};
-  
-    // Iterar sobre os dados e agrupá-los com base no mês e ano
     data.forEach((item) => {
       const date = new Date(item.tabela_data);
-      const monthYearKey = `${date.getFullYear()}-${date.getMonth() + 1}`; // Formato: "YYYY-M"
+      const monthYearKey = `${date.getFullYear()}-${date.getMonth() + 1}`; 
   
       const value = item.tabela_quantidade;
   
-      // Se o mês/ano já estiver no objeto agrupado, adicione o valor a ele
       if (groupedValues[monthYearKey]) {
         groupedValues[monthYearKey] += value;
       } else {
-        // Caso contrário, crie uma nova entrada no objeto
         groupedValues[monthYearKey] = value;
       }
     });
   
-    // Converter o objeto de valores agrupados de volta para o formato desejado
     const groupedData = Object.keys(groupedValues).map((monthYearKey) => ({
       data: monthYearKey,
       value: groupedValues[monthYearKey],
@@ -103,7 +103,7 @@ const GraphBar = ({data}) => {
     labels: somaValue().map((item) => labelsMes[item.data.split("-")[1]]),
     datasets: [
       {
-        label: "Atividade por mês",
+        label: "Atividade por Ano",
         data: somaValue().map((item) => item.value),
         backgroundColor: ["rgb(54,162,235)"],
         borderColor: ["rgb(54,162,235)"],
