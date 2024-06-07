@@ -1,6 +1,8 @@
 import React from 'react';
 import {Button, Tabs } from 'antd';
 import CadastroUsuario from '../pages/CadastroUsuario.jsx';
+import CadastroAtividade from '../pages/CadastroAtividade.jsx';
+import CadastroMovimentacao from '../pages/CadastroMovimentacao.jsx';
 const items = [
   {
     key: '1',
@@ -10,12 +12,12 @@ const items = [
   {
     key: '2',
     label: 'Atividade',
-    children: 'Content of Tab Pane 2',
+    children: <CadastroAtividade/>,
   },
   {
     key: '3',
     label: 'Movimentação',
-    children: 'Content of Tab Pane 3',
+    children: <CadastroMovimentacao/>,
   }
 ];
 const Cadastro = () => {

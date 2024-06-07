@@ -286,7 +286,6 @@ const CadastroUsuario = () => {
               ))}
             </Select>
           </Form.Item>
-
           <Form.Item
             wrapperCol={{
               offset: 8,

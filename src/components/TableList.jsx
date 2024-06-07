@@ -10,18 +10,16 @@ import verifica from "../utils/verifica";
 const { decodeToken } = new verifica();
 import * as XLSX from "xlsx";
 
-const TableList = ({children,dataSource, atividade, movimentacao }) => {
+const TableList = ({ children, dataSource, atividade, movimentacao }) => {
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef(null);
-
   const [edit, setEdit] = useState(false);
-  const [mov, setMove] = useState("");
-  const [ati, setAti] = useState("");
-
   const [listagem, setListagem] = useState([]);
-  const [dataNova, setDataNova] = useState(null);
-  const [quantidade, setQuantidade] = useState(null);
+  const [valores, setValores] = useState({});
+
+  console.log(valores);
+
 
   const tableRef = useRef(null);
 
@@ -187,7 +185,7 @@ const TableList = ({children,dataSource, atividade, movimentacao }) => {
     },
   ];
 
-  
+
 
   const columnsUser = [
     {
@@ -241,13 +239,17 @@ const TableList = ({children,dataSource, atividade, movimentacao }) => {
   };
 
   const saveUser = (data) => {
+    console.log(data);
     const id = data.map((item) => item.tabela_id);
-    Axios.post(`http://localhost:8000/cadastro/alteracao/${id}`, {
+
+    const alteredData = {
       data: dataNova,
+      quantidade: quantidade,
       atividade: ati,
       movimentacao: mov,
-      quantidade: quantidade,
-    })
+    };
+
+    Axios.post(`http://localhost:8000/cadastro/alteracao/${id}`, alteredData)
       .then((response) => {
         alert(response.data.msg);
         window.location.reload();
@@ -281,6 +283,16 @@ const TableList = ({children,dataSource, atividade, movimentacao }) => {
   };
 
   const user = validar();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setValores({
+      ...valores,
+      [name]: value
+    });
+  };
+
+
   return (
     <div>
       <div className="flex justify-between mb-2 items-center gap-4">
@@ -323,10 +335,11 @@ const TableList = ({children,dataSource, atividade, movimentacao }) => {
                   <label htmlFor="inputData">Data:</label>
                   <Input
                     className="border border-gray-300 rounded-md p-2"
+                    name="tabela_data"
                     variant="outline"
                     type="date"
-                    value={dataNova == null ? item.tabela_data : dataNova}
-                    onChange={(e) => setDataNova(e.target.value)}
+                    value={item.tabela_data ? valores.tabela_data : item.tabela_data}
+                    onChange={handleChange}
                   />
                 </div>
 
@@ -334,9 +347,10 @@ const TableList = ({children,dataSource, atividade, movimentacao }) => {
                   <div className="w-80 flex flex-col">
                     <label htmlFor="inputAtividade">Atividade:</label>
                     <select
+                      name="ati_id"
                       className="border border-gray-300 rounded-md p-2"
                       variant="outline"
-                      onChange={(e) => setAti(e.target.value)}
+                      onChange={handleChange}
                     >
                       {atividade.map((items) => (
                         <option
@@ -353,9 +367,10 @@ const TableList = ({children,dataSource, atividade, movimentacao }) => {
                   <div className="w-80 flex flex-col">
                     <label htmlFor="inputMovimentacao">Movimentação:</label>
                     <select
+                      name="mov_id"
                       className="border border-gray-300 rounded-md p-2"
                       variant="outline"
-                      onChange={(e) => setMove(e.target.value)}
+                      onChange={handleChange}
                     >
                       {movimentacao.map((items) => (
                         <option
@@ -373,13 +388,14 @@ const TableList = ({children,dataSource, atividade, movimentacao }) => {
                 <div className="flex flex-col">
                   <label htmlFor="inputQuantidade">Quantidade:</label>
                   <Input
+                    name="tabela_quantidade"
                     className="border border-gray-300 rounded-md p-2"
                     variant="outline"
                     type="text"
                     value={
-                      quantidade == null ? item.tabela_quantidade : quantidade
+                      item.tabela_quantidade
                     }
-                    onChange={(e) => setQuantidade(e.target.value)}
+                    onChange={handleChange}
                   />
                 </div>
               </div>
