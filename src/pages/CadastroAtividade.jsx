@@ -168,9 +168,11 @@ const CadastroAtividade = () => {
             okType: "danger",
             cancelText: "Não",
             onOk() {
-                Axios.get(`http://localhost:8000/cadastro/atividade/${id}`)
+                Axios.get(`http://localhost:8000/cadastro/delete/${id}`)
                     .then((response) => {
-                        window.location.reload();
+                        if(response.data.ok){
+                            window.location.reload();
+                        }
                     })
                     .catch((error) => {
                         console.log(error);

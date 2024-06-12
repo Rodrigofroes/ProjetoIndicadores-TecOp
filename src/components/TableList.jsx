@@ -7,8 +7,24 @@ import { FaTrash } from "react-icons/fa6";
 import { SearchOutlined } from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
 import verifica from "../utils/verifica";
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 const { decodeToken } = new verifica();
 import * as XLSX from "xlsx";
+
+const handleSchameCustom = z.object({
+  tabela_data: z.string()
+    .min(1, { message: "*Campo obrigatório" })
+    .refine((val) => {
+      const today = new Date();
+      const inputDate = new Date(val);
+      return inputDate <= new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    }, { message: "A data não pode ser maior ao dia atual" }),
+  ati_id: z.string().min(1, { message: "*Campo obrigatório" }),
+  mov_id: z.string().min(1, { message: "*Campo obrigatório" }),
+  tabela_quantidade: z.string().min(1, { message: "*Campo obrigatório" }),
+});
 
 const TableList = ({ children, dataSource, atividade, movimentacao }) => {
   const [searchText, setSearchText] = useState("");
@@ -16,10 +32,6 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
   const searchInput = useRef(null);
   const [edit, setEdit] = useState(false);
   const [listagem, setListagem] = useState([]);
-  const [valores, setValores] = useState({});
-
-  console.log(valores);
-
 
   const tableRef = useRef(null);
 
@@ -185,8 +197,6 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
     },
   ];
 
-
-
   const columnsUser = [
     {
       key: "tabela_data",
@@ -238,27 +248,13 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
     });
   };
 
-  const saveUser = (data) => {
-    console.log(data);
-    const id = data.map((item) => item.tabela_id);
-
-    const alteredData = {
-      data: dataNova,
-      quantidade: quantidade,
-      atividade: ati,
-      movimentacao: mov,
-    };
-
-    Axios.post(`http://localhost:8000/cadastro/alteracao/${id}`, alteredData)
-      .then((response) => {
-        alert(response.data.msg);
-        window.location.reload();
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-    setEdit(false);
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(handleSchameCustom),
+  });
 
   const alterUser = (id) => {
     Axios.get(`http://localhost:8000/cadastro/consulta/${id}`)
@@ -270,6 +266,25 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
       });
     setEdit(true);
   };
+
+  const onSubmitValue = (data) => {
+    const id = listagem[0].tabela_id;
+    Axios.post(`http://localhost:8000/cadastro/alteracao/${id}`, {
+      data: data.tabela_data,
+      quantidade: data.tabela_quantidade,
+      atividade: data.ati_id,
+      movimentacao: data.mov_id,
+    })
+      .then((response) => {
+        if (response.status == 200) {
+          window.location.reload();
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
 
   const validar = () => {
     if (document.cookie != "") {
@@ -283,16 +298,6 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
   };
 
   const user = validar();
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setValores({
-      ...valores,
-      [name]: value
-    });
-  };
-
-
   return (
     <div>
       <div className="flex justify-between mb-2 items-center gap-4">
@@ -321,36 +326,41 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
         }}
         onCancel={() => {
           setEdit(false);
+          window.location.reload();
         }}
         footer={null}
       >
-        <form>
-          <div className="flex flex-col w-96 gap-4 p-4">
+        <form onSubmit={handleSubmit(onSubmitValue)}>
+          <div className="flex flex-col gap-4 p-4">
             {listagem.map((item) => (
               <div
                 key={item.tabela_id}
-                className="flex flex-col w-96 gap-4 p-4"
               >
-                <div>
+                <div className="flex flex-col">
                   <label htmlFor="inputData">Data:</label>
-                  <Input
+                  <input
                     className="border border-gray-300 rounded-md p-2"
                     name="tabela_data"
-                    variant="outline"
+                    {...register("tabela_data")}
                     type="date"
-                    value={item.tabela_data ? valores.tabela_data : item.tabela_data}
-                    onChange={handleChange}
+                    defaultValue={item.tabela_data}
                   />
+                  {errors.tabela_data && (
+                    <span className="text-xs text-red-500">
+                      {errors.tabela_data.message}
+                    </span>
+                  )}
                 </div>
 
-                <div className="flex gap-5">
-                  <div className="w-80 flex flex-col">
+                <div className="flex gap-5 ">
+                  <div className=" flex flex-col">
                     <label htmlFor="inputAtividade">Atividade:</label>
                     <select
                       name="ati_id"
+                      {...register("ati_id")}
                       className="border border-gray-300 rounded-md p-2"
-                      variant="outline"
-                      onChange={handleChange}
+                      defaultValue={item.ati_id}
+                      selected={item.ati_id}
                     >
                       {atividade.map((items) => (
                         <option
@@ -362,15 +372,20 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
                         </option>
                       ))}
                     </select>
+                    {errors.ati_nome && (
+                      <span className="text-xs text-red-500">
+                        {errors.ati_nome.message}
+                      </span>
+                    )}
                   </div>
 
-                  <div className="w-80 flex flex-col">
+                  <div className="flex flex-col w-full">
                     <label htmlFor="inputMovimentacao">Movimentação:</label>
                     <select
                       name="mov_id"
+                      {...register("mov_id")}
                       className="border border-gray-300 rounded-md p-2"
-                      variant="outline"
-                      onChange={handleChange}
+                      defaultValue={item.mov_id}
                     >
                       {movimentacao.map((items) => (
                         <option
@@ -382,28 +397,34 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
                         </option>
                       ))}
                     </select>
+                    {errors.mov_id && (
+                      <span className="text-xs text-red-500">
+                        {errors.mov_id.message}
+                      </span>
+                    )}
                   </div>
                 </div>
 
                 <div className="flex flex-col">
                   <label htmlFor="inputQuantidade">Quantidade:</label>
-                  <Input
+                  <input
                     name="tabela_quantidade"
+                    {...register("tabela_quantidade")}
                     className="border border-gray-300 rounded-md p-2"
-                    variant="outline"
                     type="text"
-                    value={
-                      item.tabela_quantidade
-                    }
-                    onChange={handleChange}
+                    defaultValue={item.tabela_quantidade}
                   />
+                  {errors.tabela_quantidade && (
+                    <span className="text-xs text-red-500">
+                      {errors.tabela_quantidade.message}
+                    </span>
+                  )}
                 </div>
               </div>
             ))}
             <button
               type="submit"
               className="bg-blue-500 text-white p-2 rounded-md"
-              onClick={() => saveUser(listagem)}
             >
               Alterar
             </button>
