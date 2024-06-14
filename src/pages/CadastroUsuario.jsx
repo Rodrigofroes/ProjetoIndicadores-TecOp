@@ -357,12 +357,11 @@ const CadastroUsuario = () => {
               type="primary"
               block
             >
-              Salvar
+              Cadastrar
             </Button>
           </div>
         </Form>
       </Modal>
-
       <Button type="primary" onClick={() => onAdd()}>Cadastrar usuario</Button>
       <Table columns={columns} dataSource={usuario} />
       <Modal
@@ -418,7 +417,7 @@ const CadastroUsuario = () => {
                   },
                 ]}
               >
-                <Input.Password value={listaUsuario.map((item) => item.user_senha)} />
+                <Input.Password />
               </Form.Item>
               <Form.Item
                 name="cargo"

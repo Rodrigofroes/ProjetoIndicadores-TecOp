@@ -6,8 +6,37 @@ import { Button, Input, Space, Table, Modal, Form, Select } from 'antd';
 import Highlighter from 'react-highlight-words';
 import Axios from 'axios';
 
+const onFinishEdit = (values) => {
+    Axios.post("http://localhost:8000/atividade/alterar", {
+        id: values.id,
+        atividade: values.atividade,
+    })
+        .then((response) => {
+            if (response.data.ok) {
+                window.location.reload();
+            }
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+};
+
+const onfinishEditFailed = (errorInfo) => {
+    console.log("Failed:", errorInfo);
+};
+
 const onFinish = (values) => {
-    console.log(values);
+    Axios.post("http://localhost:8000/atividade/cadastrar", {
+        atividade: values.atividade,
+    })
+        .then((response) => {
+            if (response.data.ok) {
+                window.location.reload();
+            }
+        })
+        .catch((error) => {
+            console.log(error);
+        });
 };
 
 
@@ -16,8 +45,7 @@ const onFinishFailed = (errorInfo) => {
 };
 
 const CadastroAtividade = () => {
-    const [lista, setListagem] = useState([]);
-    const [atividade, setAtividade] = useState(null);
+    const [listagem, setListagem] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
@@ -168,9 +196,9 @@ const CadastroAtividade = () => {
             okType: "danger",
             cancelText: "Não",
             onOk() {
-                Axios.get(`http://localhost:8000/cadastro/delete/${id}`)
+                Axios.get(`http://localhost:8000/atividade/deletar/${id}`)
                     .then((response) => {
-                        if(response.data.ok){
+                        if (response.data.ok) {
                             window.location.reload();
                         }
                     })
@@ -210,10 +238,15 @@ const CadastroAtividade = () => {
         conexao();
     }, []);
 
-    const saveUser = (data) => {
-        console.log(atividade);
-        console.log(data);
-    };
+    const [form] = Form.useForm();
+    useEffect(() => {
+        if (listagem && listagem.length > 0) {
+            form.setFieldsValue({
+                id: listagem[0].ati_id,
+                atividade: listagem[0].ati_nome
+            });
+        }
+    }, [listagem, form]);
 
 
     return (
@@ -223,7 +256,7 @@ const CadastroAtividade = () => {
                 okText="Salvar"
                 visible={isModalOpen}
                 onOk={() => {
-                    onFinish()
+                    onFinish();
                     setIsModalOpen(false);
                 }}
                 onCancel={() => {
@@ -232,48 +265,33 @@ const CadastroAtividade = () => {
                 footer={null}
             >
                 <Form
-                    layout="horizontal"
-                    size="large"
-                    name="basic"
-                    labelCol={{
-                        span: 8,
-                    }}
-                    wrapperCol={{
-                        span: 18,
-                    }}
-                    style={{
-                        maxWidth: 300,
-                    }}
-                    initialValues={{
-                        remember: true,
-                    }}
                     onFinish={onFinish}
                     onFinishFailed={onFinishFailed}
                     autoComplete="off"
                 >
-                    <Form.Item
-                        label="Atividade"
-                        name="atividade"
-                        rules={[
-                            {
-                                required: true,
-                                message: "Campo obrigatório!",
-                            },
-                        ]}
-                    >
-                        <Input
-                        />
-                    </Form.Item>
-                    <Form.Item
-                        wrapperCol={{
-                            offset: 8,
-                            span: 16,
-                        }}
-                    >
-                        <Button type="primary" htmlType="submit">
-                            Salvar
+                    <div className="flex flex-col w-full gap-6 p-6">
+                        <div className='flex flex-col'>
+                            <Form.Item
+                                name="atividade"
+                                label="Atividade"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Campo obrigatório!",
+                                    },
+                                ]}
+                            >
+                                <Input />
+                            </Form.Item>
+                        </div>
+                        <Button
+                            htmlType="submit"
+                            type="primary"
+                            block
+                        >
+                            Cadastrar
                         </Button>
-                    </Form.Item>
+                    </div>
                 </Form>
             </Modal>
             <Button type="primary" onClick={() => onAdd()}>Cadastrar Atividade</Button>
@@ -291,12 +309,26 @@ const CadastroAtividade = () => {
                 footer={null}
             >
                 <Form
-                    onFinish={onFinish}
-                    onFinishFailed={onFinishFailed}
+                    form={form}
+                    onFinish={onFinishEdit}
+                    onFinishFailed={onfinishEditFailed}
                     autoComplete="off"
                 >
-                    <div className="flex flex-col w-96 gap-4 p-4">
-                        <div className='flex items-center gap-4'>
+                    <div className="flex flex-col w-full gap-6 p-6">
+                        <div className='flex flex-col'>
+                            <Form.Item
+                                hidden
+                                name="id"
+                                label="Codigo"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Campo obrigatório!",
+                                    },
+                                ]}
+                            >
+                                <Input disabled hidden />
+                            </Form.Item>
                             <Form.Item
                                 name="atividade"
                                 label="Atividade"
@@ -307,12 +339,13 @@ const CadastroAtividade = () => {
                                     },
                                 ]}
                             >
-                                <Input placeholder={lista.map((item) => item.ati_nome)} />
+                                <Input />
                             </Form.Item>
                         </div>
                         <Button
                             htmlType="submit"
-                            type='primary'
+                            type="primary"
+                            block
                         >
                             Alterar
                         </Button>
