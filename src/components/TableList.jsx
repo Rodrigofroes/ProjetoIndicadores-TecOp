@@ -1,25 +1,47 @@
-import React, { useState, useRef, Children } from "react";
+import React, { useState, useRef } from "react";
 import { Table, Modal, Input, Space, Button } from "antd";
 import Axios from "axios";
 import { FaDownLong } from "react-icons/fa6";
 import { FaPen } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa6";
 import { SearchOutlined } from "@ant-design/icons";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Highlighter from "react-highlight-words";
 import verifica from "../utils/verifica";
 const { decodeToken } = new verifica();
 import * as XLSX from "xlsx";
 
+const handleSchameCustom = z.object({
+  data: z.string()
+    .min(1, { message: "*Campo obrigatório" })
+    .refine((val) => {
+      const today = new Date();
+      const inputDate = new Date(val);
+      return inputDate <= new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    }, { message: "A data não pode ser maior ao dia atual" }),
+  atividade: z.string().min(1, { message: "*Campo obrigatório" }),
+  movimentacao: z.string().min(1, { message: "*Campo obrigatório" }),
+  quantidade: z.string().min(1, { message: "*Campo obrigatório" }),
+});
+
 const TableList = ({ children, dataSource, atividade, movimentacao }) => {
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(handleSchameCustom),
+  });
+
+
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef(null);
   const [edit, setEdit] = useState(false);
   const [listagem, setListagem] = useState([]);
-  const [valores, setValores] = useState({});
-
-  console.log(valores);
-
 
   const tableRef = useRef(null);
 
@@ -263,13 +285,15 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
   const alterUser = (id) => {
     Axios.get(`http://localhost:8000/cadastro/consulta/${id}`)
       .then((response) => {
-        setListagem(response.data);
+        setListagem([response.data]);
       })
       .catch((error) => {
         console.error("Erro ao carregar a lista:", error);
       });
     setEdit(true);
   };
+
+
 
   const validar = () => {
     if (document.cookie != "") {
@@ -284,14 +308,9 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
 
   const user = validar();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setValores({
-      ...valores,
-      [name]: value
-    });
+  const handleSubmitCustom = (data) => {
+    console.log(data);
   };
-
 
   return (
     <div>
@@ -324,9 +343,9 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
         }}
         footer={null}
       >
-        <form>
+        <form onSubmit={handleSubmit(handleSubmitCustom)}>
           <div className="flex flex-col w-96 gap-4 p-4">
-            {listagem.map((item) => (
+            {listagem.map((item, index) => (
               <div
                 key={item.tabela_id}
                 className="flex flex-col w-96 gap-4 p-4"
@@ -335,12 +354,16 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
                   <label htmlFor="inputData">Data:</label>
                   <Input
                     className="border border-gray-300 rounded-md p-2"
-                    name="tabela_data"
                     variant="outline"
                     type="date"
-                    value={item.tabela_data ? valores.tabela_data : item.tabela_data}
-                    onChange={handleChange}
+                    value={item.tabela_data}
+                    {...register("tabela_data")}
                   />
+                  {errors.tabela_data && (
+                    <span className="text-xs text-red-500">
+                      {errors.tabela_data.message}
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex gap-5">
@@ -350,7 +373,7 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
                       name="ati_id"
                       className="border border-gray-300 rounded-md p-2"
                       variant="outline"
-                      onChange={handleChange}
+                      {...register("ati_id")}
                     >
                       {atividade.map((items) => (
                         <option
@@ -362,6 +385,11 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
                         </option>
                       ))}
                     </select>
+                    {errors.ati_id && (
+                      <span className="text-xs text-red-500">
+                        {errors.ati_id.message}
+                      </span>
+                    )}
                   </div>
 
                   <div className="w-80 flex flex-col">
@@ -370,7 +398,7 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
                       name="mov_id"
                       className="border border-gray-300 rounded-md p-2"
                       variant="outline"
-                      onChange={handleChange}
+                      {...register("mov_id")}
                     >
                       {movimentacao.map((items) => (
                         <option
@@ -382,6 +410,11 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
                         </option>
                       ))}
                     </select>
+                    {errors.mov_id && (
+                      <span className="text-xs text-red-500">
+                        {errors.mov_id.message}
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -392,18 +425,20 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
                     className="border border-gray-300 rounded-md p-2"
                     variant="outline"
                     type="text"
-                    value={
-                      item.tabela_quantidade
-                    }
-                    onChange={handleChange}
+                    value={item.tabela_quantidade}
+                    {...register("tabela_quantidade")}
                   />
+                  {errors.tabela_quantidade && (
+                    <span className="text-xs text-red-500">
+                      {errors.tabela_quantidade.message}
+                    </span>
+                  )}
                 </div>
               </div>
             ))}
             <button
               type="submit"
               className="bg-blue-500 text-white p-2 rounded-md"
-              onClick={() => saveUser(listagem)}
             >
               Alterar
             </button>
@@ -412,6 +447,7 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
       </Modal>
     </div>
   );
+
 };
 
 export default TableList;
