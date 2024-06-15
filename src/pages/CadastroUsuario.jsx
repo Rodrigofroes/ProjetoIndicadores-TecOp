@@ -6,19 +6,49 @@ import { Button, Input, Space, Table, Modal, Form, Select } from 'antd';
 import Highlighter from 'react-highlight-words';
 import Axios from 'axios';
 
-const onFinish = (values) => {
-  Axios.post("http://localhost:8000/auth/cadastro", {
+const onFinishEdit = (values) => {
+  Axios.post("http://localhost:8000/usuario/alterar", {
+    id: values.id,
     usuario: values.username,
     senha: values.password,
-    cargo: values.Cargo,
+    cargo: values.cargo,
   })
     .then((response) => {
-      console.log(response.data)
-      if(response.data.ok){
-        Modal.success({
-          title: "Sucesso",
+      if (response.data.ok) {
+        window.location.reload();
+      } else {
+        Modal.error({
+          title: "Erro",
           content: response.data.msg,
-        });
+        })
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+};
+
+const onFinishFailedEdit = (errorInfo) => {
+  Modal.error({
+    title: "Erro",
+    content: errorInfo,
+  })
+};
+
+const onFinish = (values) => {
+  Axios.post("http://localhost:8000/usuario/cadastrar", {
+    usuario: values.username,
+    senha: values.password,
+    cargo: values.cargo,
+  })
+    .then((response) => {
+      if (response.data.ok) {
+        window.location.reload();
+      } else {
+        Modal.error({
+          title: "Erro",
+          content: response.data.msg,
+        })
       }
     })
     .catch((error) => {
@@ -35,7 +65,9 @@ const CadastroUsuario = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState('');
+  const [listaUsuario, setListaUsuario] = useState([]);
   const [usuario, setUsuario] = useState([]);
+  const [edit, setEdit] = useState(false);
   const searchInput = useRef(null);
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
@@ -169,16 +201,53 @@ const CadastroUsuario = () => {
       title: "Ações",
       render: (record) => (
         <div className="flex items-center gap-4">
-          <button onClick={() => alterUser(record.tabela_id)}>
+          <button onClick={() => alterUser(record.id_user)}>
             <FaPen className="hover:text-blue-500 transition" />
           </button>
-          <button onClick={() => deleteUser(record.tabela_id)}>
+          <button onClick={() => deleteUser(record.id_user)}>
             <FaTrash className="hover:text-red-500 transition" />
           </button>
         </div>
       ),
     },
   ];
+
+  const deleteUser = (id) => {
+    Modal.confirm({
+      title: "Excluir usuário",
+      content: "Deseja realmente excluir este usuário?",
+      okText: "Sim",
+      okType: "danger",
+      cancelText: "Não",
+      onOk() {
+        Axios.get(`http://localhost:8000/usuario/excluir/${id}`)
+          .then((response) => {
+            if (response.data.ok) {
+              window.location.reload();
+            } else {
+              Modal.error({
+                title: "Erro",
+                content: response.data.msg,
+              })
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      },
+    });
+  }
+
+  const alterUser = (id) => {
+    Axios.get(`http://localhost:8000/usuario/listar/${id}`)
+      .then((response) => {
+        setEdit(true);
+        setListaUsuario(response.data);
+      })
+      .catch((error) => {
+        console.error("Erro ao carregar a lista:", error);
+      });
+  };
 
   const onAdd = () => {
     setIsModalOpen(true);
@@ -206,15 +275,26 @@ const CadastroUsuario = () => {
     conexao();
   }, []);
 
+  const [form] = Form.useForm();
+  useEffect(() => {
+    if (listaUsuario && listaUsuario.length > 0) {
+      form.setFieldsValue({
+        id: listaUsuario[0].id_user,
+        username: listaUsuario[0].user_nome,
+        password: listaUsuario[0].user_senha,
+        cargo: listaUsuario[0].tipo_user,
+      });
+    }
+  }, [listaUsuario, form]);
 
   return (
     <>
       <Modal
-        title="Cadastrar Usuario"
+        title="Cadastrar Usuário"
         okText="Salvar"
         visible={isModalOpen}
         onOk={() => {
-          onFinish()
+          onFinish();
           setIsModalOpen(false);
         }}
         onCancel={() => {
@@ -223,83 +303,152 @@ const CadastroUsuario = () => {
         footer={null}
       >
         <Form
-          layout="horizontal"
-          size="large"
-          name="basic"
-          labelCol={{
-            span: 8,
-          }}
-          wrapperCol={{
-            span: 18,
-          }}
-          style={{
-            maxWidth: 300,
-          }}
-          initialValues={{
-            remember: true,
-          }}
           onFinish={onFinish}
           onFinishFailed={onFinishFailed}
           autoComplete="off"
         >
-          <Form.Item
-            label="Usuário"
-            name="username"
-            rules={[
-              {
-                required: true,
-                message: "Campo obrigatório!",
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-
-          <Form.Item
-            label="Senha"
-            name="password"
-            rules={[
-              {
-                required: true,
-                message: "Campo obrigatório!",
-              },
-            ]}
-          >
-            <Input.Password />
-          </Form.Item>
-
-          <Form.Item
-            label="Cargo"
-            name="Cargo"
-            rules={[
-              {
-                required: true,
-                message: "Campo obrigatório!",
-              },
-            ]}
-          >
-            <Select defaultValue="Escolha" style={{ width: 120 }}>
-              {option.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.tipo_nome}
-                </option>
-              ))}
-            </Select>
-          </Form.Item>
-          <Form.Item
-            wrapperCol={{
-              offset: 8,
-              span: 16,
-            }}
-          >
-            <Button type="primary" htmlType="submit">
-              Salvar
+          <div className="flex flex-col w-full gap-6 p-6">
+            <div className='flex flex-col'>
+              <Form.Item
+                name="username"
+                label="Usuário"
+                rules={[
+                  {
+                    required: true,
+                    message: "Campo obrigatório!",
+                  },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
+                name="password"
+                label="Senha"
+                rules={[
+                  {
+                    required: true,
+                    message: "Campo obrigatório!",
+                  },
+                ]}
+              >
+                <Input.Password />
+              </Form.Item>
+              <Form.Item
+                name="cargo"
+                label="Cargo"
+                rules={[
+                  {
+                    required: true,
+                    message: "Campo obrigatório!",
+                  },
+                ]}
+              >
+                <Select placeholder="Escolha" style={{ width: '100%' }}>
+                  {option.map((item) => (
+                    <Select.Option key={item.id} value={item.id}>
+                      {item.tipo_nome}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </div>
+            <Button
+              htmlType="submit"
+              type="primary"
+              block
+            >
+              Cadastrar
             </Button>
-          </Form.Item>
+          </div>
         </Form>
       </Modal>
       <Button type="primary" onClick={() => onAdd()}>Cadastrar usuario</Button>
       <Table columns={columns} dataSource={usuario} />
+      <Modal
+        title="Alterar Usuário"
+        visible={edit}
+        okText="Alterar"
+        onOk={() => {
+          setEdit(false);
+        }}
+        onCancel={() => {
+          setEdit(false);
+        }}
+        footer={null}
+      >
+        <Form
+          form={form}
+          onFinish={onFinishEdit}
+          onFinishFailed={onFinishFailedEdit}
+        >
+          <div className="flex flex-col w-full gap-6 p-6">
+            <div className='flex flex-col'>
+              <Form.Item
+                hidden
+                name="id"
+                rules={[
+                  {
+                    required: true,
+                    message: "Campo obrigatório!",
+                  },
+                ]}
+              >
+                <Input disabled hidden />
+              </Form.Item>
+              <Form.Item
+                name="username"
+                label="Usuário"
+                rules={[
+                  {
+                    required: true,
+                    message: "Campo obrigatório!",
+                  },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
+                name="password"
+                label="Senha"
+                rules={[
+                  {
+                    required: true,
+                    message: "Campo obrigatório!",
+                  },
+                ]}
+              >
+                <Input.Password />
+              </Form.Item>
+              <Form.Item
+                name="cargo"
+                label="Cargo"
+                rules={[
+                  {
+                    required: true,
+                    message: "Campo obrigatório!",
+                  },
+                ]}
+              >
+                <Select placeholder="Escolha" style={{ width: '100%' }}>
+                  {option.map((item) => (
+                    <Option key={item.id} value={item.id}>
+                      {item.tipo_nome}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </div>
+            <Button
+              htmlType="submit"
+              type="primary"
+              block
+            >
+              Alterar
+            </Button>
+          </div>
+        </Form>
+      </Modal>
+
     </>
   );
 };

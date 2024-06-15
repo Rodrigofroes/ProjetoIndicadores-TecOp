@@ -26,7 +26,6 @@ const ListaRouter = () => {
   const [dataSource, setDataSource] = useState([]);
   const [atividade, setAtividade] = useState([]);
   const [movimentacao, setMovimentacao] = useState([]);
-  const [dados, setDados] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -122,25 +121,27 @@ const ListaRouter = () => {
         }}
         footer={null}
       >
-        <form onSubmit={handleSubmit(handleSubmitCustom)}>
-          <div className="flex flex-col w-96 gap-4 p-4">
-            <label htmlFor="data">Data:</label>
-            <input
-              className="border border-gray-300 rounded-md p-2"
-              variant="outline"
-              id="data"
-              placeholder="Data"
-              type="date"
-              {...register("data")}
-            />
-            {errors.data && (
-              <span className="text-xs text-red-500">
-                {errors.data.message}
-              </span>
-            )}
+        <form key={Math.random() * 10} onSubmit={handleSubmit(handleSubmitCustom)}>
+          <div className="flex flex-col gap-4 p-4">
+            <div className="flex flex-col">
+              <label htmlFor="data">Data:</label>
+              <input
+                className="border border-gray-300 rounded-md p-2"
+                variant="outline"
+                id="data"
+                placeholder="Data"
+                type="date"
+                {...register("data")}
+              />
+              {errors.data && (
+                <span className="text-xs text-red-500">
+                  {errors.data.message}
+                </span>
+              )}
+            </div>
 
             <div className="flex gap-5">
-              <div className="w-80 flex flex-col">
+              <div className="flex flex-col">
                 <label htmlFor="inputAtividade">Atividade:</label>
                 <select
                   variant="outline"
@@ -160,7 +161,7 @@ const ListaRouter = () => {
                 )}
               </div>
 
-              <div className="w-80 flex flex-col">
+              <div className="flex flex-col w-full">
                 <label htmlFor="inputMovimentacao">Movimentação:</label>
                 <select
                   variant="outline"
@@ -181,18 +182,20 @@ const ListaRouter = () => {
               </div>
             </div>
 
-            <label htmlFor="quantidade">Quantidade:</label>
-            <input
-              className="border border-gray-300 rounded-md p-2"
-              id="quantidade"
-              placeholder="Quantidade"
-              {...register("quantidade")}
-            />
-            {errors.quantidade && (
-              <span className="text-xs text-red-500">
-                {errors.quantidade.message}
-              </span>
-            )}
+            <div className="flex flex-col">
+              <label htmlFor="quantidade">Quantidade:</label>
+              <input
+                className="border border-gray-300 rounded-md p-2"
+                id="quantidade"
+                placeholder="Quantidade"
+                {...register("quantidade")}
+              />
+              {errors.quantidade && (
+                <span className="text-xs text-red-500">
+                  {errors.quantidade.message}
+                </span>
+              )}
+            </div>
             <button
               type="submit"
               className="bg-blue-500 text-white p-2 rounded-md"
@@ -202,7 +205,7 @@ const ListaRouter = () => {
           </div>
         </form>
       </Modal>
-    </div>
+    </div >
   );
 };
 

@@ -6,13 +6,32 @@ import { Button, Input, Space, Table, Modal, Form, Select } from 'antd';
 import Highlighter from 'react-highlight-words';
 import Axios from 'axios';
 
-const onFinish = (values) => {
-    Axios.post("http://localhost:8000/cadastro/movimentacao", {
+const onFinishEdit = (values) => {
+    Axios.post("http://localhost:8000/movimentacao/alterar", {
+        id: values.id,
         movimentacao: values.movimentacao,
     })
         .then((response) => {
             if (response.data) {
-               window.location.reload();
+                window.location.reload();
+            }
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+};
+
+const onFinishFailedEdit = (errorInfo) => {
+    console.log("Failed:", errorInfo);
+};
+
+const onFinish = (values) => {
+    Axios.post("http://localhost:8000/movimentacao/cadastrar", {
+        movimentacao: values.movimentacao,
+    })
+        .then((response) => {
+            if (response.data.ok) {
+                window.location.reload();
             }
         })
         .catch((error) => {
@@ -25,11 +44,12 @@ const onFinishFailed = (errorInfo) => {
 };
 
 const CadastroMovimentacao = () => {
-    const [option, setOption] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const [usuario, setUsuario] = useState([]);
+    const [edit, setEdit] = useState(false);
+    const [movimentacao, setMovimentacao] = useState([]);
     const searchInput = useRef(null);
 
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
@@ -156,10 +176,10 @@ const CadastroMovimentacao = () => {
             title: "Ações",
             render: (record) => (
                 <div className="flex items-center gap-4">
-                    <button onClick={() => alterUser(record.tabela_id)}>
+                    <button onClick={() => alterAtividade(record.mov_id)}>
                         <FaPen className="hover:text-blue-500 transition" />
                     </button>
-                    <button onClick={() => deleteUser(record.tabela_id)}>
+                    <button onClick={() => deleteAtividade(record.mov_id)}>
                         <FaTrash className="hover:text-red-500 transition" />
                     </button>
                 </div>
@@ -167,12 +187,44 @@ const CadastroMovimentacao = () => {
         },
     ];
 
+    const deleteAtividade = (id) => {
+        Modal.confirm({
+            title: "Excluir Movimentação",
+            content: "Deseja realmente excluir este registro?",
+            okText: "Sim",
+            okType: "danger",
+            cancelText: "Não",
+            onOk() {
+                Axios.get(`http://localhost:8000/movimentacao/deletar/${id}`)
+                    .then((response) => {
+                        if (response.data.ok) {
+                            window.location.reload();
+                        }
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
+            },
+        });
+    };
+
+    const alterAtividade = (id) => {
+        Axios.get(`http://localhost:8000/movimentacao/listar/${id}`)
+            .then((response) => {
+                setMovimentacao(response.data);
+            })
+            .catch((error) => {
+                console.error("Erro ao carregar a lista:", error);
+            });
+        setEdit(true);
+    };
+
     const onAdd = () => {
         setIsModalOpen(true);
     };
 
     const conexao = () => {
-        Axios.get("http://localhost:8000/consultar/movimentacao")
+        Axios.get("http://localhost:8000/movimentacao/listar")
             .then((response) => {
                 setUsuario(response.data);
             })
@@ -185,6 +237,15 @@ const CadastroMovimentacao = () => {
         conexao();
     }, []);
 
+    const [form] = Form.useForm();
+    useEffect(() => {
+        if (movimentacao && movimentacao.length > 0) {
+            form.setFieldsValue({
+                id: movimentacao[0].mov_id,
+                movimentacao: movimentacao[0].mov_nome
+            });
+        }
+    }, [movimentacao, form]);
 
     return (
         <>
@@ -193,7 +254,7 @@ const CadastroMovimentacao = () => {
                 okText="Salvar"
                 visible={isModalOpen}
                 onOk={() => {
-                    onFinish()
+                    onFinish();
                     setIsModalOpen(false);
                 }}
                 onCancel={() => {
@@ -202,51 +263,92 @@ const CadastroMovimentacao = () => {
                 footer={null}
             >
                 <Form
-                    layout="horizontal"
-                    size="large"
-                    name="basic"
-                    labelCol={{
-                        span: 10,
-                    }}
-                    wrapperCol={{
-                        span: 18,
-                    }}
-                    style={{
-                        maxWidth: 300,
-                    }}
-                    initialValues={{
-                        remember: true,
-                    }}
+                    
                     onFinish={onFinish}
                     onFinishFailed={onFinishFailed}
                     autoComplete="off"
                 >
-                    <Form.Item
-                        label="Movimentação"
-                        name="movimentacao"
-                        rules={[
-                            {
-                                required: true,
-                                message: "Campo obrigatório!",
-                            },
-                        ]}
-                    >
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
-                        wrapperCol={{
-                            offset: 8,
-                            span: 16,
-                        }}
-                    >
-                        <Button type="primary" htmlType="submit">
-                            Salvar
+                    <div className="flex flex-col w-full gap-6 p-6">
+                        <div className='flex flex-col'>
+                            <Form.Item
+                                name="movimentacao"
+                                label="Movimentação"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Campo obrigatório!",
+                                    },
+                                ]}
+                            >
+                                <Input />
+                            </Form.Item>
+                        </div>
+                        <Button
+                            htmlType="submit"
+                            type="primary"
+                            block
+                        >
+                            Cadastrar
                         </Button>
-                    </Form.Item>
+                    </div>
                 </Form>
             </Modal>
             <Button type="primary" onClick={() => onAdd()}>Cadastrar Movimentação</Button>
-            <Table columns={columns} dataSource={usuario} pagination={{ pageSize: 8 }} />
+            <Table columns={columns} dataSource={usuario} />
+            <Modal
+                title="Alterar Movimentação"
+                visible={edit}
+                okText="Alterar"
+                onOk={() => {
+                    setEdit(false);
+                }}
+                onCancel={() => {
+                    setEdit(false);
+                }}
+                footer={null}
+            >
+                <Form
+                    form={form}
+                    onFinish={onFinishEdit}
+                    onFinishFailed={onFinishFailedEdit}
+                >
+                    <div className="flex flex-col w-full gap-6 p-6">
+                        <div className='flex flex-col'>
+                            <Form.Item
+                                hidden
+                                name="id"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Campo obrigatório!",
+                                    },
+                                ]}
+                            >
+                                <Input disabled hidden />
+                            </Form.Item>
+                            <Form.Item
+                                name="movimentacao"
+                                label="Movimentação"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Campo obrigatório!",
+                                    },
+                                ]}
+                            >
+                                <Input />
+                            </Form.Item>
+                        </div>
+                        <Button
+                            htmlType="submit"
+                            type="primary"
+                            block
+                        >
+                            Alterar
+                        </Button>
+                    </div>
+                </Form>
+            </Modal>
         </>
     );
 };

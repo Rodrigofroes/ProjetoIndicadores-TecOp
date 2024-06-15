@@ -1,5 +1,6 @@
 import GraphBar from "../components/graficos/GraphBar";
 import GraphPie from "../components/graficos/DashDoughnut";
+import GraphBarSaida from "../components/graficos/GraphBarSaida";
 import { Select } from "antd";
 import { useEffect, useState } from "react";
 import Axios from "axios";
@@ -10,6 +11,7 @@ const DashboardRouter = () => {
   const [data, setData] = useState([]);
   const [mes, setMes] = useState([]);
   const [valorMes, setValorMes] = useState([]);
+  const [deposito, setDeposito] = useState([]);
 
   const conexao = () => {
     Axios.get('http://localhost:8000/consultar/grafico')
@@ -21,8 +23,19 @@ const DashboardRouter = () => {
       })
   }
 
+  const conexaoDeposito = () => {
+    Axios.get('http://localhost:8000/deposito/listar')
+      .then((response) => {
+        setDeposito(response.data)
+      })
+      .catch((error) => {
+        verificar.verificar(error.response.status);
+      })
+  }
+
   useEffect(() => {
     conexao();
+    conexaoDeposito();
   }, [])
 
 
@@ -132,6 +145,9 @@ const DashboardRouter = () => {
       <div className="flex mt-10 items-center">
         <GraphBar data={mes == "" ? data : mes} />
         <GraphPie data={valorMes == "" ? data : valorMes} />
+      </div>
+      <div className="flex mt-10 items-center">
+        <GraphBarSaida  data={deposito}/>
       </div>
     </div>
   );

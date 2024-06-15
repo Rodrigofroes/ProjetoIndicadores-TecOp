@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Bar } from "react-chartjs-2";
-import { Select } from "antd";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -28,10 +27,6 @@ const GraphBar = ({data}) => {
   const barChartRef = useRef(null);
   const pieChartRef = useRef(null);
 
-
-  const tratamentoAno = (data) => {
-    
-  }
 
 
   useEffect(() => {

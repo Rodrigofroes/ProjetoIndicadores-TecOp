@@ -6,7 +6,7 @@ import CadastroMovimentacao from '../pages/CadastroMovimentacao.jsx';
 const items = [
   {
     key: '1',
-    label: 'Usuario',
+    label: 'Usuário',
     children: <CadastroUsuario/>,
   },
   {
