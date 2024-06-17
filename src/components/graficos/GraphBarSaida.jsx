@@ -53,7 +53,7 @@ const GraphBarSaida = ({ data }) => {
   const dataBarCustom = {
     labels: data.map((item) => {
       const value = (item.entrada - item.saida) / item.saida;
-      return item.mes + "  " + value.toFixed(2) + "%";
+      return item.mes + "  " + Math.round(value * 100) + "%";
     }),
     datasets: [
       {

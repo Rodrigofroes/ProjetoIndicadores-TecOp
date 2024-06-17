@@ -185,6 +185,8 @@ const ListaRouter = () => {
             <div className="flex flex-col">
               <label htmlFor="quantidade">Quantidade:</label>
               <input
+                type="number"
+                min={0}
                 className="border border-gray-300 rounded-md p-2"
                 id="quantidade"
                 placeholder="Quantidade"
