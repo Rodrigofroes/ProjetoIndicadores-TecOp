@@ -54,6 +54,13 @@ const GraphPie = ({ data }) => {
           size: 12,
         },
       },
+      title: {
+        display: true,
+        text: "Atividade por Mês",
+        font: {
+          size: 20,
+        },
+      },
     },
   };
 

@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import DashboardRouter from './routes/DashboardRouter.jsx'
+import Dashboard from './routes/Dashboard.jsx'
 import ListaRouter from './routes/ListaRouter.jsx'
 import Login from './routes/Login.jsx'
 import Axios from 'axios'
@@ -16,7 +16,7 @@ const router = createBrowserRouter([
   { path: '/', 
     element: <App/>, 
     children:[
-      { path: '/', element: <DashboardRouter/> },
+      { path: '/', element: <Dashboard/> },
       { path: 'lista', element: <ListaRouter/> },
       {path: 'cadastro', element: <Cadastro/> },
     ],

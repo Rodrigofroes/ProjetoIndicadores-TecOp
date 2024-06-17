@@ -50,8 +50,11 @@ const GraphBar = ({data}) => {
       },
       title: {
         display: true,
-        text: "Atividade por mês",
-      }
+        text: "Atividade por Ano",
+        font: {
+          size: 20,
+        },
+      },
     },
   };
 

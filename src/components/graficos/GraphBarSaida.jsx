@@ -8,10 +8,10 @@ import {
   ArcElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  elements
 } from "chart.js";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-
 
 ChartJS.register(
   CategoryScale,
@@ -41,14 +41,22 @@ const GraphBarSaida = ({ data }) => {
         formatter: (value, context) => {
           return value;
         },
-        color: "#fff",
+        color: "balck",
         font: {
           weight: "bold",
-          size: 12,
+          size: 10,
         },
       },
-    },
+      title: {
+        display: true,
+        text: "Entradas e Saídas",
+        font: {
+          size: 20,
+        }
+      },
+    }
   };
+  
 
   const dataBarCustom = {
     labels: data.map((item) => {
@@ -62,6 +70,7 @@ const GraphBarSaida = ({ data }) => {
         backgroundColor: "rgba(54, 162, 235)",
         borderColor: "rgba(54, 162, 235)",
         borderWidth: 1,
+        barThickness: 40
       },
       {
         label: "Saídas",
@@ -69,13 +78,14 @@ const GraphBarSaida = ({ data }) => {
         backgroundColor: "rgba(255, 99, 132)",
         borderColor: "rgba(255, 99, 132)",
         borderWidth: 1,
+        barThickness: 40
       }
     ]
   };
 
   return (
-    <div>
-      <Bar style={{ height: "400px", width: "100%" }} data={dataBarCustom} options={barOptions} />
+    <div style={{ height: "100%", width: "1100px" }}>
+      <Bar data={dataBarCustom} options={barOptions} />
     </div>
   );
 };
