@@ -1,10 +1,13 @@
-import React, { useState, useRef, Children } from "react";
+import React, { useState, useRef } from "react";
 import { Table, Modal, Input, Space, Button } from "antd";
 import Axios from "axios";
 import { FaDownLong } from "react-icons/fa6";
 import { FaPen } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa6";
 import { SearchOutlined } from "@ant-design/icons";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Highlighter from "react-highlight-words";
 import verifica from "../utils/verifica";
 import { z } from 'zod';
@@ -14,19 +17,39 @@ const { decodeToken } = new verifica();
 import * as XLSX from "xlsx";
 
 const handleSchameCustom = z.object({
+<<<<<<< HEAD
+  data: z.string()
+=======
   tabela_data: z.string()
+>>>>>>> b99a907ff3c2771a48f21fe99b3ed1b57d6c2db9
     .min(1, { message: "*Campo obrigatório" })
     .refine((val) => {
       const today = new Date();
       const inputDate = new Date(val);
       return inputDate <= new Date(today.getFullYear(), today.getMonth(), today.getDate());
     }, { message: "A data não pode ser maior ao dia atual" }),
+<<<<<<< HEAD
+  atividade: z.string().min(1, { message: "*Campo obrigatório" }),
+  movimentacao: z.string().min(1, { message: "*Campo obrigatório" }),
+  quantidade: z.string().min(1, { message: "*Campo obrigatório" }),
+=======
   ati_id: z.string().min(1, { message: "*Campo obrigatório" }),
   mov_id: z.string().min(1, { message: "*Campo obrigatório" }),
   tabela_quantidade: z.string().min(1, { message: "*Campo obrigatório" }),
+>>>>>>> b99a907ff3c2771a48f21fe99b3ed1b57d6c2db9
 });
 
 const TableList = ({ children, dataSource, atividade, movimentacao }) => {
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(handleSchameCustom),
+  });
+
+
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef(null);
@@ -259,7 +282,7 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
   const alterUser = (id) => {
     Axios.get(`http://localhost:8000/cadastro/consulta/${id}`)
       .then((response) => {
-        setListagem(response.data);
+        setListagem([response.data]);
       })
       .catch((error) => {
         console.error("Erro ao carregar a lista:", error);
@@ -267,6 +290,8 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
     setEdit(true);
   };
 
+<<<<<<< HEAD
+=======
   const onSubmitValue = (data) => {
     const id = listagem[0].tabela_id;
     Axios.post(`http://localhost:8000/cadastro/alteracao/${id}`, {
@@ -284,6 +309,7 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
         console.error(error);
       });
   };
+>>>>>>> b99a907ff3c2771a48f21fe99b3ed1b57d6c2db9
 
 
   const validar = () => {
@@ -298,6 +324,14 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
   };
 
   const user = validar();
+<<<<<<< HEAD
+
+  const handleSubmitCustom = (data) => {
+    console.log(data);
+  };
+
+=======
+>>>>>>> b99a907ff3c2771a48f21fe99b3ed1b57d6c2db9
   return (
     <div>
       <div className="flex justify-between mb-2 items-center gap-4">
@@ -330,9 +364,15 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
         }}
         footer={null}
       >
+<<<<<<< HEAD
+        <form onSubmit={handleSubmit(handleSubmitCustom)}>
+          <div className="flex flex-col w-96 gap-4 p-4">
+            {listagem.map((item, index) => (
+=======
         <form onSubmit={handleSubmit(onSubmitValue)}>
           <div className="flex flex-col gap-4 p-4">
             {listagem.map((item) => (
+>>>>>>> b99a907ff3c2771a48f21fe99b3ed1b57d6c2db9
               <div
                 key={item.tabela_id}
               >
@@ -340,10 +380,17 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
                   <label htmlFor="inputData">Data:</label>
                   <input
                     className="border border-gray-300 rounded-md p-2"
+<<<<<<< HEAD
+                    variant="outline"
+                    type="date"
+                    value={item.tabela_data}
+                    {...register("tabela_data")}
+=======
                     name="tabela_data"
                     {...register("tabela_data")}
                     type="date"
                     defaultValue={item.tabela_data}
+>>>>>>> b99a907ff3c2771a48f21fe99b3ed1b57d6c2db9
                   />
                   {errors.tabela_data && (
                     <span className="text-xs text-red-500">
@@ -359,8 +406,13 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
                       name="ati_id"
                       {...register("ati_id")}
                       className="border border-gray-300 rounded-md p-2"
+<<<<<<< HEAD
+                      variant="outline"
+                      {...register("ati_id")}
+=======
                       defaultValue={item.ati_id}
                       selected={item.ati_id}
+>>>>>>> b99a907ff3c2771a48f21fe99b3ed1b57d6c2db9
                     >
                       {atividade.map((items) => (
                         <option
@@ -372,9 +424,15 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
                         </option>
                       ))}
                     </select>
+<<<<<<< HEAD
+                    {errors.ati_id && (
+                      <span className="text-xs text-red-500">
+                        {errors.ati_id.message}
+=======
                     {errors.ati_nome && (
                       <span className="text-xs text-red-500">
                         {errors.ati_nome.message}
+>>>>>>> b99a907ff3c2771a48f21fe99b3ed1b57d6c2db9
                       </span>
                     )}
                   </div>
@@ -385,7 +443,12 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
                       name="mov_id"
                       {...register("mov_id")}
                       className="border border-gray-300 rounded-md p-2"
+<<<<<<< HEAD
+                      variant="outline"
+                      {...register("mov_id")}
+=======
                       defaultValue={item.mov_id}
+>>>>>>> b99a907ff3c2771a48f21fe99b3ed1b57d6c2db9
                     >
                       {movimentacao.map((items) => (
                         <option
@@ -412,7 +475,12 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
                     {...register("tabela_quantidade")}
                     className="border border-gray-300 rounded-md p-2"
                     type="text"
+<<<<<<< HEAD
+                    value={item.tabela_quantidade}
+                    {...register("tabela_quantidade")}
+=======
                     defaultValue={item.tabela_quantidade}
+>>>>>>> b99a907ff3c2771a48f21fe99b3ed1b57d6c2db9
                   />
                   {errors.tabela_quantidade && (
                     <span className="text-xs text-red-500">
@@ -433,6 +501,7 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
       </Modal>
     </div>
   );
+
 };
 
 export default TableList;
