@@ -88,7 +88,8 @@ const DashboardEntrada = () => {
                     <div className="flex items-center">
                         <GraphBarSaida data={pesquisa == "" ? deposito : pesquisa} />
                     </div>
-                    <div className="flex gap-2 mt-2">
+                    <div className="flex gap-2 mt-2 font-sm">
+                        <p>Total: </p>
                         <p>Entradas: {somaValoresTotais().totalEntrada}</p>
                         <p>Saídas: {somaValoresTotais().totalSaida}</p>
                         <p>Diferença: {somaValoresTotais().diferenca}</p>
