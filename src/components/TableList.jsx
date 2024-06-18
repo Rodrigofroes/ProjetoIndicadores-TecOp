@@ -1,41 +1,28 @@
-import React, { useState, useRef } from "react";
-import { Table, Modal, Input, Space, Button } from "antd";
+import React, { useState, useRef, useEffect } from "react";
+import { Table, Modal, Input, Space, Button, Form, Select } from "antd";
 import Axios from "axios";
 import { FaDownLong } from "react-icons/fa6";
 import { FaPen } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa6";
 import { SearchOutlined } from "@ant-design/icons";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import Highlighter from "react-highlight-words";
 import verifica from "../utils/verifica";
 const { decodeToken } = new verifica();
+import moment from 'moment';
 import * as XLSX from "xlsx";
 
-const handleSchameCustom = z.object({
-  data: z.string()
-    .min(1, { message: "*Campo obrigatório" })
-    .refine((val) => {
-      const today = new Date();
-      const inputDate = new Date(val);
-      return inputDate <= new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    }, { message: "A data não pode ser maior ao dia atual" }),
-  atividade: z.string().min(1, { message: "*Campo obrigatório" }),
-  movimentacao: z.string().min(1, { message: "*Campo obrigatório" }),
-  quantidade: z.string().min(1, { message: "*Campo obrigatório" }),
-});
+const onFinishEdit = (data) => {
+  console.log(data);
+  Axios.post("http://localhost:8000/cadastro/alteracao", data)
+    .then((response) => {
+      window.location.reload();
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+};
 
 const TableList = ({ children, dataSource, atividade, movimentacao }) => {
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    resolver: zodResolver(handleSchameCustom),
-  });
-
 
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
@@ -57,7 +44,7 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
 
-    XLSX.writeFile(wb, "relatorio-usuarios.xlsx");
+    XLSX.writeFile(wb, "relatorio.xlsx");
   };
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
@@ -167,8 +154,8 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
       dataIndex: "tabela_data",
       ...getColumnSearchProps("tabela_data"),
       render: (text) => {
-        const data = new Date(text);
-        return data.toLocaleDateString();
+        const formatDate = moment(text).format('DD/MM/YYYY');
+        return formatDate;
       },
     },
     {
@@ -217,8 +204,8 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
       dataIndex: "tabela_data",
       ...getColumnSearchProps("tabela_data"),
       render: (text) => {
-        const data = new Date(text);
-        return data.toLocaleDateString();
+        const formatDate = moment(text).format('DD/MM/YYYY');
+        return formatDate;
       },
     },
     {
@@ -268,7 +255,7 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
   const alterUser = (id) => {
     Axios.get(`http://localhost:8000/cadastro/consulta/${id}`)
       .then((response) => {
-        setListagem([response.data]);
+        setListagem(response.data);
       })
       .catch((error) => {
         console.error("Erro ao carregar a lista:", error);
@@ -289,9 +276,19 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
 
   const user = validar();
 
-  const handleSubmitCustom = (data) => {
-    console.log(data);
-  };
+  const [form] = Form.useForm();
+
+  useEffect(() => {
+    if (listagem && listagem.length > 0) {
+      form.setFieldsValue({
+        id: listagem[0].tabela_id,
+        data: listagem[0].tabela_data,
+        atividade: listagem[0].ati_id,
+        movimentacao: listagem[0].mov_id, 
+        quantidade: listagem[0].tabela_quantidade,
+      });
+    }
+  }, [listagem, form]);
 
   return (
     <div>
@@ -324,108 +321,108 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
         }}
         footer={null}
       >
-        <form onSubmit={handleSubmit(handleSubmitCustom)}>
-          <div className="flex flex-col w-96 gap-4 p-4">
-            {listagem.map((item, index) => (
-              <div
-                key={item.tabela_id}
-              >
-                <div className="flex flex-col">
-                  <label htmlFor="inputData">Data:</label>
-                  <input
-                    className="border border-gray-300 rounded-md p-2"
-                    variant="outline"
-                    type="date"
-                    value={item.tabela_data}
-                    {...register("tabela_data")}
-                  />
-                  {errors.tabela_data && (
-                    <span className="text-xs text-red-500">
-                      {errors.tabela_data.message}
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex gap-5 ">
-                  <div className=" flex flex-col">
-                    <label htmlFor="inputAtividade">Atividade:</label>
-                    <select
-                      name="ati_id"
-                      {...register("ati_id")}
-                      className="border border-gray-300 rounded-md p-2"
-                      variant="outline"
-                      {...register("ati_id")}
-                    >
-                      {atividade.map((items) => (
-                        <option
-                          key={items.ati_nome}
-                          value={items.ati_id}
-                          selected={items.ati_nome === item.ati_nome}
-                        >
-                          {items.ati_nome}
-                        </option>
-                      ))}
-                    </select>
-                    {errors.ati_id && (
-                      <span className="text-xs text-red-500">
-                        {errors.ati_id.message}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex flex-col w-full">
-                    <label htmlFor="inputMovimentacao">Movimentação:</label>
-                    <select
-                      name="mov_id"
-                      {...register("mov_id")}
-                      className="border border-gray-300 rounded-md p-2"
-                      variant="outline"
-                      {...register("mov_id")}
-                    >
-                      {movimentacao.map((items) => (
-                        <option
-                          key={items.mov_nome}
-                          value={items.mov_id}
-                          selected={items.mov_nome === item.mov_nome}
-                        >
-                          {items.mov_nome}
-                        </option>
-                      ))}
-                    </select>
-                    {errors.mov_id && (
-                      <span className="text-xs text-red-500">
-                        {errors.mov_id.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex flex-col">
-                  <label htmlFor="inputQuantidade">Quantidade:</label>
-                  <input
-                    name="tabela_quantidade"
-                    {...register("tabela_quantidade")}
-                    className="border border-gray-300 rounded-md p-2"
-                    type="text"
-                    value={item.tabela_quantidade}
-                    {...register("tabela_quantidade")}
-                  />
-                  {errors.tabela_quantidade && (
-                    <span className="text-xs text-red-500">
-                      {errors.tabela_quantidade.message}
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
-            <button
-              type="submit"
-              className="bg-blue-500 text-white p-2 rounded-md"
-            >
+        <Form
+          form={form}
+          onFinish={onFinishEdit}
+          layout="vertical"
+        >
+          <Form.Item
+            name="id"
+            label="Id"
+            hidden
+            rules={[
+              {
+                required: true,
+                message: "Campo obrigatório",
+              },
+            ]}
+          >
+            <Input hidden />
+          </Form.Item>
+          <Form.Item
+            name="data"
+            label="Data"
+            rules={[
+              {
+                required: true,
+                message: "Campo obrigatório",
+              },
+              {
+                validator: (_, value) => {
+                  const today = new Date();
+                  const inputDate = new Date(value);
+                  if (inputDate <= new Date(today.getFullYear(), today.getMonth(), today.getDate())) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject("A data não pode ser maior ao dia atual");
+                }
+              }
+            ]}
+          >
+            <Input type="date" />
+          </Form.Item>
+          <Form.Item
+            name="atividade"
+            label="Atividade"
+            rules={[
+              {
+                required: true,
+                message: "Campo obrigatório",
+              },
+            ]}
+          >
+            <Select>
+              {atividade.map((item) => (
+                <Select.Option key={item.ati_id} value={item.ati_id}>
+                  {item.ati_nome}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
+            name="movimentacao"
+            label="Movimentação"
+            rules={[
+              {
+                required: true,
+                message: "Campo obrigatório",
+              },
+            ]}
+          >
+            <Select>
+              {movimentacao.map((item) => (
+                <Select.Option key={item.mov_id} value={item.mov_id}>
+                  {item.mov_nome}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
+            name="quantidade"
+            label="Quantidade"
+            rules={[
+              {
+                required: true,
+                message: "Campo obrigatório",
+              },
+              {
+                validator: (_, value) => {
+                  if (value > 0) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject("A quantidade deve ser maior que 0");
+                }
+              }
+            ]}
+          >
+            <Input type="number" min={0} />
+          </Form.Item>
+          <Form.Item className="flex justify-center">
+            <Button type="primary" htmlType="submit">
               Alterar
-            </button>
-          </div>
-        </form>
+            </Button>
+          </Form.Item>
+        </Form>
       </Modal>
     </div>
   );

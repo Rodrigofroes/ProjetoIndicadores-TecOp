@@ -7,6 +7,7 @@ import { FaTrash } from "react-icons/fa6";
 import { SearchOutlined } from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
 import verificar from "../utils/verifica";
+import moment from 'moment';
 const { decodeToken } = new verificar();
 
 const onFinished = (values) => {
@@ -169,8 +170,8 @@ const ListaEntrada = () => {
             key: 'dataCriacao',
             ...getColumnSearchProps("dataCriacao"),
             render: (text) => {
-                const data = new Date(text);
-                return data.toLocaleDateString();
+                const formatDate = moment(text).format('DD/MM/YYYY');
+                return formatDate;
             },
         },
         {
@@ -201,8 +202,8 @@ const ListaEntrada = () => {
             width: '20%',
             ...getColumnSearchProps("dataCriacao"),
             render: (text) => {
-                const data = new Date(text);
-                return data.toLocaleDateString();
+                const formatDate = moment(text).format('DD/MM/YYYY');
+                return formatDate;
             },
         },
         {
@@ -211,7 +212,9 @@ const ListaEntrada = () => {
             key: 'entrada',
             width: '20%',
             ...getColumnSearchProps("entrada"),
-            
+            render: (text) => {
+                return text.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            },
         },
         {
             title: 'Saída',
@@ -219,6 +222,9 @@ const ListaEntrada = () => {
             key: 'saida',
             width: '20%',
             ...getColumnSearchProps("saida"),
+            render: (text) => {
+                return text.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            },
         },
         {
             title: 'Usuário',
@@ -453,8 +459,8 @@ const ListaEntrada = () => {
                         <Form.Item
                             hidden
                             name='id'
-                        >    
-                            <Input type="hidden"/>
+                        >
+                            <Input type="hidden" />
                         </Form.Item>
                         <Form.Item
                             label="Data"

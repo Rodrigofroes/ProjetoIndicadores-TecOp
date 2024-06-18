@@ -82,7 +82,7 @@ const GraphPie = ({ data }) => {
             )
           ),
         },
-      ],#
+      ],
     };
     return dadosDistribuicaoAtividades;
   };

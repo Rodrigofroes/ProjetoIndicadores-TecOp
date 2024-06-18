@@ -61,7 +61,7 @@ const DashboardEntrada = () => {
         let diferenca = totalEntrada - totalSaida;
         let porcentagem = (diferenca / totalSaida) * 100;
 
-        diferenca = `${diferenca.toFixed(3)} (${porcentagem.toFixed(2)}%)`;
+        diferenca = `${diferenca.toFixed(3)} (${porcentagem.toFixed()}%)`;
 
         return { totalEntrada, totalSaida, diferenca };
     }
