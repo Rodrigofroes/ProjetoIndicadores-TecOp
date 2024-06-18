@@ -39,9 +39,12 @@ const GraphBarSaida = ({ data }) => {
     plugins: {
       datalabels: {
         formatter: (value, context) => {
-          return value;
+          let formattedValue = value.toString();
+          formattedValue = formattedValue.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+          return formattedValue;
         },
-        color: "balck",
+        color: "black",
         font: {
           weight: "bold",
           size: 10,
@@ -49,7 +52,7 @@ const GraphBarSaida = ({ data }) => {
       },
       title: {
         display: true,
-        text: "Entradas e Saídas",
+        text: "Entradas e Saídas de mercadorias",
         font: {
           size: 20,
         }
@@ -76,7 +79,7 @@ const GraphBarSaida = ({ data }) => {
     labels: data.map((item) => {
       const data = item.dataCriacao.split("-")[1];
       const value = (item.entrada - item.saida) / item.saida;
-      return labelsMes[0][data] + "  " + Math.round(value * 100) + "%";
+      return labelsMes[0][data] + "  " + Math.round(value * 100) + "%" + "(" + (item.entrada - item.saida) + ")";
     }),
     datasets: [
       {
@@ -99,8 +102,9 @@ const GraphBarSaida = ({ data }) => {
   };
 
   return (
-    <div style={{ height: "100%", width: "1100px" }}>
+    <div style={{ height: "100%", width: "1000px" }}>
       <Bar data={dataBarCustom} options={barOptions} />
+
     </div>
   );
 };
