@@ -22,16 +22,19 @@ const DashboardEntrada = () => {
     const filtroAno = () => {
         const anos = new Set();
         deposito.forEach((item) => {
-            const ano = item.ano;
+            const ano = item.dataCriacao.split("-")[0];
             anos.add(ano);
         });
         return Array.from(anos);
     };
 
+
     useEffect(() => {
         conexaoDeposito();
         filtroAno();
     }, []);
+
+    
 
     const handleChangeAno = (value) => {
         Axios.get(`http://localhost:8000/deposito/consultarAno/${value}`)
@@ -39,10 +42,9 @@ const DashboardEntrada = () => {
                 setPesquisa(response.data)
             })
             .catch((error) => {
-                new verificar().verificar(error.response.status);
+                verifica.verificar(error.response.status);
             })
     };
-
 
     return (
         <>
@@ -64,7 +66,7 @@ const DashboardEntrada = () => {
                 </div>
                 <div className="flex flex-col w-full justify-between items-center">
                     <div className="flex items-center">
-                        <GraphBarSaida data={pesquisa == "" ? deposito : pesquisa}/>
+                        <GraphBarSaida data={pesquisa == "" ? deposito : pesquisa} />
                     </div>
                 </div>
             </div>

@@ -7,14 +7,13 @@ import { FaTrash } from "react-icons/fa6";
 import { SearchOutlined } from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
 import verificar from "../utils/verifica";
-import { render } from 'react-dom';
-import { renderToString } from 'react-dom/server';
 const { decodeToken } = new verificar();
 
 const onFinished = (values) => {
     Axios.post('http://localhost:8000/deposito/inserir', {
         entrada: values.entrada,
         saida: values.saida,
+        data: values.data,
     })
         .then((response) => {
             if (response.data.ok) {
@@ -22,8 +21,29 @@ const onFinished = (values) => {
             }
         })
         .catch((error) => {
-            console.error("Erro ao cadastrar:", error);
+            console.log(error);
         });
+}
+
+const onFinishEdit = (values) => {
+    Axios.post('http://localhost:8000/deposito/alterar', {
+        id: values.id,
+        entrada: values.entrada,
+        saida: values.saida,
+        data: values.date,
+    })
+        .then((response) => {
+            if (response.data.ok) {
+                window.location.reload();
+            }
+        })
+        .catch((error) => {
+            console.log(error)
+        });
+}
+
+const onFinishFailedEdit = (errorInfo) => {
+    onsole.log(errorInfo)
 }
 
 const onFinishedFailed = (errorInfo) => {
@@ -144,6 +164,16 @@ const ListaEntrada = () => {
 
     const columnsUser = [
         {
+            title: 'Data',
+            dataIndex: 'dataCriacao',
+            key: 'dataCriacao',
+            ...getColumnSearchProps("dataCriacao"),
+            render: (text) => {
+                const data = new Date(text);
+                return data.toLocaleDateString();
+            },
+        },
+        {
             title: 'Entrada',
             dataIndex: 'entrada',
             key: 'entrada',
@@ -156,43 +186,45 @@ const ListaEntrada = () => {
             ...getColumnSearchProps("saida"),
         },
         {
-            title: 'User',
+            title: 'Usuário',
             dataIndex: 'user_nome',
             key: 'user_nome',
             ...getColumnSearchProps("user_nome"),
-        },
-        {
-            title: 'Data',
-            dataIndex: 'dataCriacao',
-            key: 'dataCriacao',
-            ...getColumnSearchProps("dataCriacao"),
         }
     ];
 
     const columns = [
         {
+            title: 'Data',
+            dataIndex: 'dataCriacao',
+            key: 'dataCriacao',
+            width: '20%',
+            ...getColumnSearchProps("dataCriacao"),
+            render: (text) => {
+                const data = new Date(text);
+                return data.toLocaleDateString();
+            },
+        },
+        {
             title: 'Entrada',
             dataIndex: 'entrada',
             key: 'entrada',
+            width: '20%',
             ...getColumnSearchProps("entrada"),
+            
         },
         {
             title: 'Saída',
             dataIndex: 'saida',
             key: 'saida',
+            width: '20%',
             ...getColumnSearchProps("saida"),
         },
         {
-            title: 'User',
+            title: 'Usuário',
             dataIndex: 'user_nome',
             key: 'user_nome',
             ...getColumnSearchProps("user_nome"),
-        },
-        {
-            title: 'Data',
-            dataIndex: 'dataCriacao',
-            key: 'dataCriacao',
-            ...getColumnSearchProps("dataCriacao"),
         },
         {
             title: 'Ações',
@@ -264,6 +296,7 @@ const ListaEntrada = () => {
         if (listagem && listagem.length > 0) {
             form.setFieldsValue({
                 id: listagem[0].id,
+                date: new Date(listagem[0].dataCriacao).toISOString().split('T')[0],
                 entrada: listagem[0].entrada,
                 saida: listagem[0].saida,
             });
@@ -312,29 +345,84 @@ const ListaEntrada = () => {
                     name="basic"
                     onFinish={onFinished}
                     onFinishFailed={onFinishedFailed}
-                    layout='vertical'
+                    layout="vertical"
+                    size='large'
                 >
-                    <div className='flex justify-around items-center'>
+                    <div>
+                        <Form.Item
+                            label="Data"
+                            name="data"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: 'Por favor, insira uma data!',
+                                },
+                                {
+                                    validator: (_, value) => {
+                                        const data = new Date(value);
+                                        const dataAtual = new Date();
+                                        if (data > dataAtual) {
+                                            return Promise.reject(new Error('A data não pode ser maior que o dia atual!'));
+                                        } else {
+                                            return Promise.resolve();
+                                        }
+                                    },
+                                },
+                            ]}
+                        >
+                            <Input type="date" />
+                        </Form.Item>
+
+
                         <Form.Item
                             label="Entrada"
                             name="entrada"
-                            rules={[{ required: true, message: 'Por favor, insira um valor!' }]}
-                        >
-                            <Input type='number' min={0} />
-                        </Form.Item>
-                        <Form.Item
-                            label="Saída"
-                            name="saida"
-                            rules={[{ required: true, message: 'Por favor, insira um valor!' }]}
+                            rules={[
+                                {
+                                    required: true,
+                                    message: 'Por favor, insira um valor!',
+                                },
+                                {
+                                    validator: (_, value) => {
+                                        if (value <= 0) {
+                                            return Promise.reject(new Error('O valor não pode ser negativo ou zero!'));
+                                        } else {
+                                            return Promise.resolve();
+                                        }
+                                    },
+                                },
+                            ]}
                         >
                             <Input type="number" min={0} />
                         </Form.Item>
+
+                        <Form.Item
+                            label="Saída"
+                            name="saida"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: 'Por favor, insira um valor!',
+                                },
+                                {
+                                    validator: (_, value) => {
+                                        if (value <= 0) {
+                                            return Promise.reject(new Error('O valor não pode ser negativo ou zero!'));
+                                        } else {
+                                            return Promise.resolve();
+                                        }
+                                    },
+                                },
+                            ]}
+                        >
+                            <Input type="number" min={0} />
+                        </Form.Item>
+                        <Form.Item className='flex items-center justify-center mt-10'>
+                            <Button htmlType="submit" type="primary">Cadastrar</Button>
+                        </Form.Item>
                     </div>
-                    <Form.Item>
-                        <Button htmlType='submit' type="primary">Salvar</Button>
-                    </Form.Item>
                 </Form>
-            </Modal>
+            </Modal >
             <Table
                 id="Table"
                 ref={tableRef}
@@ -356,32 +444,93 @@ const ListaEntrada = () => {
                 <Form
                     form={form}
                     name="basic"
-                    onFinish={onFinished}
-                    onFinishFailed={onFinishedFailed}
+                    onFinish={onFinishEdit}
+                    onFinishFailed={onFinishFailedEdit}
                     layout='vertical'
+                    size='large'
                 >
-                    <div className='flex justify-around items-center'>
+                    <div>
+                        <Form.Item
+                            hidden
+                            name='id'
+                        >    
+                            <Input type="hidden"/>
+                        </Form.Item>
+                        <Form.Item
+                            label="Data"
+                            name="date"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: 'Por favor, insira uma data!',
+                                },
+                                {
+                                    validator: (_, value) => {
+                                        const data = new Date(value);
+                                        const dataAtual = new Date();
+                                        if (data > dataAtual) {
+                                            return Promise.reject(new Error('A data não pode ser maior que o dia atual!'));
+                                        } else {
+                                            return Promise.resolve();
+                                        }
+                                    },
+                                },
+                            ]}
+                        >
+                            <Input type="date" />
+                        </Form.Item>
+
+
                         <Form.Item
                             label="Entrada"
                             name="entrada"
-                            rules={[{ required: true, message: 'Por favor, insira um valor!' }]}
-                        >
-                            <Input type='number' min={0} />
-                        </Form.Item>
-                        <Form.Item
-                            label="Saída"
-                            name="saida"
-                            rules={[{ required: true, message: 'Por favor, insira um valor!' }]}
+                            rules={[
+                                {
+                                    required: true,
+                                    message: 'Por favor, insira um valor!',
+                                },
+                                {
+                                    validator: (_, value) => {
+                                        if (value <= 0) {
+                                            return Promise.reject(new Error('O valor não pode ser negativo ou zero!'));
+                                        } else {
+                                            return Promise.resolve();
+                                        }
+                                    },
+                                },
+                            ]}
                         >
                             <Input type="number" min={0} />
                         </Form.Item>
+
+                        <Form.Item
+                            label="Saída"
+                            name="saida"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: 'Por favor, insira um valor!',
+                                },
+                                {
+                                    validator: (_, value) => {
+                                        if (value <= 0) {
+                                            return Promise.reject(new Error('O valor não pode ser negativo ou zero!'));
+                                        } else {
+                                            return Promise.resolve();
+                                        }
+                                    },
+                                },
+                            ]}
+                        >
+                            <Input type="number" min={0} />
+                        </Form.Item>
+                        <Form.Item className='flex items-center justify-center mt-10'>
+                            <Button htmlType="submit" type="primary">Alterar</Button>
+                        </Form.Item>
                     </div>
-                    <Form.Item>
-                        <Button htmlType='submit' type="primary">Salvar</Button>
-                    </Form.Item>
                 </Form>
             </Modal>
-        </div>
+        </div >
     )
 
 }

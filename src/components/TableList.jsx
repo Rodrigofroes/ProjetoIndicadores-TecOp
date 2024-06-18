@@ -166,6 +166,10 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
       title: "Data",
       dataIndex: "tabela_data",
       ...getColumnSearchProps("tabela_data"),
+      render: (text) => {
+        const data = new Date(text);
+        return data.toLocaleDateString();
+      },
     },
     {
       key: "ati_nome",
@@ -212,6 +216,10 @@ const TableList = ({ children, dataSource, atividade, movimentacao }) => {
       title: "Data",
       dataIndex: "tabela_data",
       ...getColumnSearchProps("tabela_data"),
+      render: (text) => {
+        const data = new Date(text);
+        return data.toLocaleDateString();
+      },
     },
     {
       key: "ati_nome",

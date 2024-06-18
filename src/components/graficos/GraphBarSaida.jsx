@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -56,12 +56,27 @@ const GraphBarSaida = ({ data }) => {
       },
     }
   };
-  
+
+  const labelsMes = [{
+    "01": "Janeiro",
+    "02": "Fevereiro",
+    "03": "Março",
+    "04": "Abril",
+    "05": "Maio",
+    "06": "Junho",
+    "07": "Julho",
+    "08": "Agosto",
+    "09": "Setembro",
+    "10": "Outubro",
+    "11": "Novembro",
+    "12": "Dezembro",
+  }];
 
   const dataBarCustom = {
     labels: data.map((item) => {
+      const data = item.dataCriacao.split("-")[1];
       const value = (item.entrada - item.saida) / item.saida;
-      return item.mes + "  " + Math.round(value * 100) + "%";
+      return labelsMes[0][data] + "  " + Math.round(value * 100) + "%";
     }),
     datasets: [
       {

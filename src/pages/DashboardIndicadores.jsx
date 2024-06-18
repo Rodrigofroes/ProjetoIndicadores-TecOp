@@ -11,7 +11,6 @@ const DashboardIndicadores = () => {
   const [data, setData] = useState([]);
   const [mes, setMes] = useState([]);
   const [valorMes, setValorMes] = useState([]);
-  const [deposito, setDeposito] = useState([]);
 
   const conexao = () => {
     Axios.get('http://localhost:8000/consultar/grafico')
@@ -23,19 +22,9 @@ const DashboardIndicadores = () => {
       })
   }
 
-  const conexaoDeposito = () => {
-    Axios.get('http://localhost:8000/deposito/listar')
-      .then((response) => {
-        setDeposito(response.data)
-      })
-      .catch((error) => {
-        verificar.verificar(error.response.status);
-      })
-  }
 
   useEffect(() => {
     conexao();
-    conexaoDeposito();
   }, [])
 
 
